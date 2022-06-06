@@ -3,11 +3,9 @@ import cors from "cors";
 import fileUpload from "express-fileupload";
 
 import config from "./config";
-import { authRoutes } from "./routes";
+import { authRoutes, adminsRoutes } from "./routes";
 
 const app = express();
-
-import databaseQuery from "./database";
 
 /* Middlewares */
 app.use(
@@ -20,5 +18,6 @@ app.use(fileUpload());
 
 /* Routes */
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/admins", adminsRoutes);
 
 app.listen(config.SERVER_PORT, () => console.info("Server on port: " + config.SERVER_PORT));
