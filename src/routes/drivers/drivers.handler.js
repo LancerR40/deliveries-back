@@ -1,7 +1,7 @@
 import express from "express";
 import { validate, createValidations, driverDocumentValidations } from "./validations";
 import { base64Image } from "../../utils/image";
-import { createDriver, createDriverDocument, getDriverIdByIdentificationCode } from "./drivers";
+import { createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries } from "./drivers";
 import bcrypt from "bcrypt";
 import cloudinary from "../../cloud/cloudinary";
 import { successResponse, errorResponse, responseCodes } from "../../responses";
@@ -55,6 +55,16 @@ router.post("/document", driverDocumentValidations(), validate, async (req, res)
   }
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
+});
+
+router.post("/", async (req, res) => {
+  const result = await getDriversByQueries(req.body);
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema al realizar la búsqueda"));
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(result));
 });
 
 export default router;

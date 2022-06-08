@@ -29,3 +29,24 @@ export const getDriverIdByIdentificationCode = async (code) => {
     return false;
   }
 };
+
+export const getDriversByQueries = async (queries) => {
+  try {
+    const {
+      search: { fullname, identificationCode },
+      fields,
+    } = queries;
+
+    const joined = fields.join(", ");
+
+    if (fullname) {
+      return await query(`SELECT ${joined} FROM driver WHERE Name LIKE ?`, [fullname + "%"]);
+    }
+
+    if (identificationCode) {
+      return await query(`SELECT ${joined} FROM driver WHERE IdentificationCode LIKE ?`, [identificationCode + "%"]); /* prettier-ignore */
+    }
+  } catch (error) {
+    return false;
+  }
+};
