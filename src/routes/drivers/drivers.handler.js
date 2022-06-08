@@ -1,7 +1,7 @@
 import express from "express";
-import { validate, createValidations } from "./validations";
+import { validate, createValidations, driverDocumentValidations } from "./validations";
 import { base64Image } from "../../utils/image";
-import { createDriver } from "./drivers";
+import { createDriver, createDriverDocument, getDriverIdByIdentificationCode } from "./drivers";
 import bcrypt from "bcrypt";
 import cloudinary from "../../cloud/cloudinary";
 import { successResponse, errorResponse, responseCodes } from "../../responses";
@@ -25,10 +25,33 @@ router.post("/create", createValidations(), validate, async (req, res) => {
 
   const driver = { Name, Lastname, IdentificationCode, Gender, Photo: photoUrl,  DateOfBirth, Email, Password: await bcrypt.hash(Password, 8), IDDriverStatus: 2 } /* prettier-ignore */
 
-  const result = await createDriver(driver);
+  if (!(await createDriver(driver))) {
+    return res
+      .status(responseCodes.HTTP_200_OK)
+      .json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
+  }
 
-  if (!result) {
-    res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
+  res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
+});
+
+router.post("/document", driverDocumentValidations(), validate, async (req, res) => {
+  const { driverIdentificationCode, document } = req.body;
+  const { title: Title } = document;
+
+  const driverId = await getDriverIdByIdentificationCode(driverIdentificationCode);
+
+  if (!driverId) {
+    return res
+      .status(responseCodes.HTTP_200_OK)
+      .json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
+  }
+
+  const driverDocument = { IDDriver: driverId, Title, Document: JSON.stringify(document) };
+
+  if (!(await createDriverDocument(driverDocument))) {
+    return res
+      .status(responseCodes.HTTP_200_OK)
+      .json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
   }
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));

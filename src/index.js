@@ -15,6 +15,7 @@ app.use(
   })
 );
 app.use(fileUpload());
+app.use(express.json());
 
 /* Routes */
 app.use("/api/v1/auth", authRoutes);

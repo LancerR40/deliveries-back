@@ -143,3 +143,89 @@ export const createValidations = () => [
     .withMessage("La contraseña debe tener más de seis (6) carácteres")
     .bail(),
 ];
+
+export const driverDocumentValidations = () => [
+  body("driverName")
+    .notEmpty()
+    .withMessage("Debes ingresar un nombre.")
+    .bail()
+
+    .matches(/^[a-zA-Z\s]*$/)
+    .withMessage("El nombre es inválido.")
+    .bail()
+
+    .isLength({ max: 50 })
+    .withMessage("El nombre debe tener menos de cincuenta (50) carácteres.")
+    .bail(),
+
+  body("driverLastname")
+    .notEmpty()
+    .withMessage("Debes ingresar un apellido.")
+    .bail()
+
+    .matches(/^[a-zA-Z\s]*$/)
+    .withMessage("El apellido es inválido.")
+    .bail()
+
+    .isLength({ max: 50 })
+    .withMessage("El apellido debe tener menos de cincuenta (50) carácteres.")
+    .bail(),
+
+  body("driverIdentificationCode")
+    .notEmpty()
+    .withMessage("Debes ingresar una cédula.")
+    .bail()
+
+    .matches(/^[0-9]*$/)
+    .withMessage("La cédula es inválida.")
+    .bail()
+
+    .isLength({ min: 7, max: 8 })
+    .withMessage("La cédula debe tener menos de siete (7) a ocho (8) carácteres.")
+    .bail()
+
+    .custom(async (value) => {
+      let result = await query("SELECT IDDriver FROM driver WHERE IdentificationCode = ?", [value]);
+
+      if (!result.length) {
+        return Promise.reject("La identificación seleccionada es incorrecta.");
+      }
+
+      return Promise.resolve();
+    }),
+
+  body("document").custom(async (value, { req }) => {
+    const allowedDocuments = ["driver license"];
+    const { title } = value;
+
+    if (!allowedDocuments.includes(title)) {
+      throw new Error("El documento seleccionado es incorrecto.");
+    }
+
+    if (title === allowedDocuments[0]) {
+      const result = await query("SELECT IDDriverDocument FROM driver_document INNER JOIN driver ON driver_document.IDDriver = driver.IDDriver WHERE driver.IdentificationCode = ?", req.body.driverIdentificationCode) /* prettier-ignore */
+
+      if (result.length) {
+        return Promise.reject("El documento para el conductor seleccionado se encuentra registrado.");
+      }
+
+      const { expedition, expiration } = value;
+
+      const currentMoment = moment(new Date());
+      const expeditionMoment = moment(expedition);
+      const expirationMoment = moment(expiration);
+
+      if (expeditionMoment.isAfter(currentMoment)) {
+        return Promise.reject("La fecha de expedición del documento es incorrecta.");
+      }
+
+      if (expirationMoment.isSameOrBefore(expeditionMoment)) {
+        return Promise.reject("La fecha de expiración indica que el documento ya no es válido.");
+      }
+
+      return Promise.resolve();
+    }
+
+    return Promise.reject("");
+  }),
+];
