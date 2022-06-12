@@ -32,49 +32,39 @@ export const getDriverIdByIdentificationCode = async (code) => {
 
 export const getDriversByQueries = async (queries) => {
   try {
-    const {
-      search: { page, fullname, identificationCode },
-      fields,
-    } = queries;
+    const { search, fields } = queries;
 
     const joined = fields.join(", ");
 
     let sql1 = `SELECT ${joined} FROM driver`;
     let sql2 = `SELECT COUNT(IDDriver) as counter FROM driver`;
-    const params1 = [];
+    const params = [];
 
-    if (fullname && !identificationCode) {
-      sql1 += " WHERE Name LIKE ?";
-      params1.push(fullname + "%");
+    if (search.field) {
+      sql1 += ` WHERE Name LIKE ? OR IdentificationCode LIKE ?`;
+      sql2 += ` WHERE Name LIKE ? OR IdentificationCode LIKE ?`;
 
-      sql2 += " WHERE Name LIKE ?";
+      params.push(search.field + "%", search.field + "%");
     }
 
-    if (identificationCode && !fullname) {
-      sql1 += " WHERE IdentificationCode LIKE ?";
-      params1.push(identificationCode + "%");
-
-      sql2 += " WHERE IdentificationCode LIKE ?";
-    }
-
-    if (page) {
-      const counter = await query(sql2, params1);
+    if (search.page) {
+      const counter = await query(sql2, params);
 
       const limit = 8;
-      const offset = Number(page) * limit - limit;
+      const offset = Number(search.page) * limit - limit;
 
       sql1 += " LIMIT ? OFFSET ?";
-      params1.push(limit);
-      params1.push(offset);
+      params.push(limit);
+      params.push(offset);
 
       return {
-        drivers: await query(sql1, params1),
+        drivers: await query(sql1, params),
         counter: counter[0].counter,
       };
     }
 
     return {
-      drivers: await query(sql1, params1),
+      drivers: await query(sql1, params),
     };
   } catch (error) {
     return false;

@@ -232,11 +232,7 @@ export const driverDocumentValidations = () => [
 
 export const driversByQueriesValidations = () => [
   body("search").custom((value) => {
-    const { page, fullname, identificationCode } = value;
-
-    if (fullname && identificationCode) {
-      throw new Error("Hubo un problema al realizar la búsqueda.");
-    }
+    const { page } = value;
 
     if ((page && !Number(page)) || Number(page) === 0) {
       throw new Error("Hubo un problema al realizar la búsqueda.");
