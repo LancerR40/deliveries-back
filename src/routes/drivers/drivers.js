@@ -32,11 +32,9 @@ export const getDriverIdByIdentificationCode = async (code) => {
 
 export const getDriversByQueries = async (queries) => {
   try {
-    const { search, fields } = queries;
+    const { search } = queries;
 
-    const joined = fields.join(", ");
-
-    let sql1 = `SELECT ${joined} FROM driver`;
+    let sql1 = `SELECT IDDriver as driverId, Name as name, Lastname as lastname, IdentificationCode as identificationCode, Email as email, CreatedAt as createdAt FROM driver`; /* prettier-ignore */
     let sql2 = `SELECT COUNT(IDDriver) as counter FROM driver`;
     const params = [];
 
