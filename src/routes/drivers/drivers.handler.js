@@ -17,7 +17,7 @@ router.post("/create", createValidations(), validate, async (req, res) => {
   let photoUrl = null;
 
   try {
-    const { secure_url } = await cloudinary.uploader.upload(imageBase64, { folder: "driver-photo" });
+    const { secure_url } = await cloudinary.uploader.upload(imageBase64, { folder: "deliveries-system/driver-photo" });
     photoUrl = secure_url;
   } catch (error) {
     res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));

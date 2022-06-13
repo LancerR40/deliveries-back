@@ -209,7 +209,17 @@ export const driverDocumentValidations = () => [
         return Promise.reject("El documento para el conductor seleccionado se encuentra registrado.");
       }
 
-      const { expedition, expiration } = value;
+      const { expedition, expiration, licenseType } = value;
+
+      if (!expedition || !expiration || !licenseType) {
+        return Promise.reject("El documento no posee los campos necesarios.");
+      }
+
+      const allowedLicenseType = ["A", "B", "C"];
+
+      if (!allowedLicenseType.includes(licenseType)) {
+        return Promise.reject("El tipo de licencia es incorrecta.");
+      }
 
       const currentMoment = moment(new Date());
       const expeditionMoment = moment(expedition);
