@@ -8,6 +8,16 @@ import { successResponse, errorResponse, responseCodes } from "../../responses";
 
 const router = express.Router();
 
+router.post("/", driversByQueriesValidations(), validate, async (req, res) => {
+  const result = await getDriversByQueries(req.body);
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema al realizar la búsqueda."));
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(result));
+});
+
 router.post("/create", createValidations(), validate, async (req, res) => {
   const { name: Name, lastname: Lastname, identificationCode: IdentificationCode, gender: Gender, dateOfBirth: DateOfBirth, email: Email, password: Password } = req.body; /* prettier-ignore */
   const { photo } = req.files;
@@ -55,16 +65,6 @@ router.post("/document", driverDocumentValidations(), validate, async (req, res)
   }
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
-});
-
-router.post("/", driversByQueriesValidations(), validate, async (req, res) => {
-  const result = await getDriversByQueries(req.body);
-
-  if (!result) {
-    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema al realizar la búsqueda."));
-  }
-
-  res.status(responseCodes.HTTP_200_OK).json(successResponse(result));
 });
 
 export default router;
