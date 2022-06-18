@@ -145,99 +145,68 @@ export const createValidations = () => [
 ];
 
 export const driverDocumentValidations = () => [
-  body("driverName")
-    .notEmpty()
-    .withMessage("Debes ingresar un nombre.")
-    .bail()
-
-    .matches(/^[a-zA-Z\s]*$/)
-    .withMessage("El nombre es inválido.")
-    .bail()
-
-    .isLength({ max: 50 })
-    .withMessage("El nombre debe tener menos de cincuenta (50) carácteres.")
-    .bail(),
-
-  body("driverLastname")
-    .notEmpty()
-    .withMessage("Debes ingresar un apellido.")
-    .bail()
-
-    .matches(/^[a-zA-Z\s]*$/)
-    .withMessage("El apellido es inválido.")
-    .bail()
-
-    .isLength({ max: 50 })
-    .withMessage("El apellido debe tener menos de cincuenta (50) carácteres.")
-    .bail(),
-
-  body("driverIdentificationCode")
-    .notEmpty()
-    .withMessage("Debes ingresar una cédula.")
-    .bail()
-
-    .matches(/^[0-9]*$/)
-    .withMessage("La cédula es inválida.")
-    .bail()
-
-    .isLength({ min: 7, max: 8 })
-    .withMessage("La cédula debe tener menos de siete (7) a ocho (8) carácteres.")
+  body("document")
+    .isObject()
+    .withMessage("El documento es incorecto.")
     .bail()
 
     .custom(async (value) => {
-      let result = await query("SELECT IDDriver FROM driver WHERE IdentificationCode = ?", [value]);
+      const allowedDocuments = ["Driver License"];
 
-      if (!result.length) {
-        return Promise.reject("La identificación seleccionada es incorrecta.");
+      if (value?.title === allowedDocuments[0]) {
+        const { title, name, lastname, identificationCode, gender, expedition, expiration, type } = value;
+
+        if (!name || !lastname || !identificationCode || !gender || !expedition || !expiration || !type) {
+          return Promise.reject("El documento no contiene los campos requeridos.");
+        }
+
+        const result1 = await query("SELECT IDDriver, Name, Lastname, IdentificationCode, Gender FROM driver WHERE IdentificationCode = ?", identificationCode) /* prettier-ignore */
+
+        if (!result1.length) {
+          return Promise.reject("El conductor seleccionado no se encuentra registrado.");
+        }
+
+        const driver = result1[0];
+
+        const result2 = await query("SELECT IDDriverDocument FROM driver_document WHERE IDDriver = ?", driver.IDDriver);
+
+        if (result2.length) {
+          return Promise.reject("El documento se encuentra registrado para este conductor.");
+        }
+
+        const allowedGenders = {
+          Female: 1,
+          Male: 2,
+        };
+
+        /* prettier-ignore */
+        if (name !== driver.Name || lastname !== driver.Lastname || identificationCode !== driver.IdentificationCode || !allowedGenders[gender] === driver.Gender) {
+          return Promise.reject("Los datos personales del conductor son incorrectos.");
+        }
+
+        const currentMoment = moment(new Date());
+        const expeditionMoment = moment(expedition);
+        const expirationMoment = moment(expiration);
+
+        if (expeditionMoment.isAfter(currentMoment)) {
+          return Promise.reject("La fecha de expedición del documento es incorrecta.");
+        }
+
+        if (expirationMoment.isSameOrBefore(expeditionMoment)) {
+          return Promise.reject("La fecha de expiración indica que el documento ya no es válido.");
+        }
+
+        const allowedTypes = ["A", "B", "C"];
+
+        if (!allowedTypes.includes(type)) {
+          return Promise.reject("El tipo de licencia es incorrecta.");
+        }
+
+        return Promise.resolve();
       }
 
-      return Promise.resolve();
+      return Promise.reject("El tipo de documento es incorrecto.");
     }),
-
-  body("document").custom(async (value, { req }) => {
-    const allowedDocuments = ["driver license"];
-    const { title } = value;
-
-    if (!allowedDocuments.includes(title)) {
-      throw new Error("El documento seleccionado es incorrecto.");
-    }
-
-    if (title === allowedDocuments[0]) {
-      const result = await query("SELECT IDDriverDocument FROM driver_document INNER JOIN driver ON driver_document.IDDriver = driver.IDDriver WHERE driver.IdentificationCode = ?", req.body.driverIdentificationCode) /* prettier-ignore */
-
-      if (result.length) {
-        return Promise.reject("El documento para el conductor seleccionado se encuentra registrado.");
-      }
-
-      const { expedition, expiration, licenseType } = value;
-
-      if (!expedition || !expiration || !licenseType) {
-        return Promise.reject("El documento no posee los campos necesarios.");
-      }
-
-      const allowedLicenseType = ["A", "B", "C"];
-
-      if (!allowedLicenseType.includes(licenseType)) {
-        return Promise.reject("El tipo de licencia es incorrecta.");
-      }
-
-      const currentMoment = moment(new Date());
-      const expeditionMoment = moment(expedition);
-      const expirationMoment = moment(expiration);
-
-      if (expeditionMoment.isAfter(currentMoment)) {
-        return Promise.reject("La fecha de expedición del documento es incorrecta.");
-      }
-
-      if (expirationMoment.isSameOrBefore(expeditionMoment)) {
-        return Promise.reject("La fecha de expiración indica que el documento ya no es válido.");
-      }
-
-      return Promise.resolve();
-    }
-
-    return Promise.reject("");
-  }),
 ];
 
 export const driversByQueriesValidations = () => [

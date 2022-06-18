@@ -44,11 +44,11 @@ router.post("/create", createValidations(), validate, async (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
 });
 
-router.post("/document", driverDocumentValidations(), validate, async (req, res) => {
-  const { driverIdentificationCode, document } = req.body;
-  const { title: Title } = document;
+router.post("/documents", driverDocumentValidations(), validate, async (req, res) => {
+  const { document } = req.body;
+  const { title: Title, identificationCode } = document;
 
-  const driverId = await getDriverIdByIdentificationCode(driverIdentificationCode);
+  const driverId = await getDriverIdByIdentificationCode(identificationCode);
 
   if (!driverId) {
     return res
@@ -65,6 +65,12 @@ router.post("/document", driverDocumentValidations(), validate, async (req, res)
   }
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
+});
+
+router.get("/documents", (req, res) => {
+  const documents = [{ id: 1, name: "Licencia de conducir", value: "Driver License" }];
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(documents));
 });
 
 export default router;
