@@ -5,7 +5,7 @@ import moment from "moment";
 import query from "../../database";
 
 import { responseCodes, errorResponse } from "../../responses";
-import { DRIVER_DOCUMENTS } from "../../constants";
+import { DRIVER_DOCUMENTS, USER_GENDERS } from "../../constants";
 
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -74,9 +74,15 @@ export const createValidations = () => [
     .withMessage("Debes ingresar un género.")
     .bail()
 
-    .matches(/^[1-2]*$/)
-    .withMessage("El género es inválido.")
-    .bail(),
+    .custom((value) => {
+      const allowedGenders = USER_GENDERS.map(({ name }) => name);
+
+      if (!allowedGenders.includes(value)) {
+        throw new Error("El género es incorrecto.");
+      }
+
+      return true;
+    }),
 
   body("photo").custom((value, { req }) => {
     if (!req.files || !req.files.photo) {
@@ -181,13 +187,10 @@ export const driverDocumentValidations = () => [
           return Promise.reject("El documento se encuentra registrado para este conductor.");
         }
 
-        const allowedGenders = {
-          Female: 1,
-          Male: 2,
-        };
+        const allowedGenders = USER_GENDERS.reduce((prev, curr) => ({ ...prev, [curr.name]: curr.name }), {});
 
         /* prettier-ignore */
-        if (name !== driver.Name || lastname !== driver.Lastname || identificationCode !== driver.IdentificationCode || !allowedGenders[gender] === driver.Gender) {
+        if (name !== driver.Name || lastname !== driver.Lastname || identificationCode !== driver.IdentificationCode || allowedGenders[gender] !== driver.Gender) {
           return Promise.reject("Los datos personales del conductor son incorrectos.");
         }
 

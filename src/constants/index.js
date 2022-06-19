@@ -26,3 +26,14 @@ export const VEHICLE_BRANDS = [
     name: "Nissan",
   },
 ];
+
+export const USER_GENDERS = [
+  {
+    id: 1,
+    name: "Masculino",
+  },
+  {
+    id: 2,
+    name: "Femenino",
+  },
+];
