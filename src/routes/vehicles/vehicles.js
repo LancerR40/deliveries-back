@@ -33,6 +33,8 @@ export const createVehicleDocument = async (document) => {
 
     await query("INSERT INTO vehicle_document SET ?", { IDVehicle, Title, Document });
 
+    await query("UPDATE vehicle SET IDVehicleStatus = ? WHERE IDVehicle = ?", [1, IDVehicle]);
+
     return true;
   } catch (error) {
     return false;
