@@ -9,8 +9,8 @@ import { VEHICLE_BRANDS } from "../../constants";
 const router = express.Router();
 
 router.post("/create", createVehicleValidations(), validate, async (req, res) => {
-  const { model, brand, colors, type, licenseNumber, tiresNumber, owner } = req.body;
-  const vehicle = { model, brand, color: JSON.stringify(colors), type, licenseNumber, tiresNumber, owner };
+  const vehicle = { ...req.body, color: JSON.stringify(req.body.colors) };
+  delete vehicle.colors;
   vehicle.IDVehicleStatus = 2;
 
   const result = await createVehicle(vehicle);
