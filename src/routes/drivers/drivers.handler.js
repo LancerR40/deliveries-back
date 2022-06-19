@@ -37,7 +37,7 @@ router.post("/create", createValidations(), validate, async (req, res) => {
     res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
   }
 
-  const driver = { Name, Lastname, IdentificationCode, Gender, Photo: photoUrl,  DateOfBirth, Email, Password: await bcrypt.hash(Password, 8), IDDriverStatus: 2 } /* prettier-ignore */
+  const driver = { Name, Lastname, IdentificationCode, Gender, Photo: photoUrl,  DateOfBirth, Email, Password: await bcrypt.hash(Password, 8), IDDriverStatus: 3 } /* prettier-ignore */
 
   if (!(await createDriver(driver))) {
     return res

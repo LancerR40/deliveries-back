@@ -12,7 +12,9 @@ export const createDriver = async (driver) => {
 
 export const createDriverDocument = async (document) => {
   try {
+    // Insert document and update driver status to available
     await query("INSERT INTO driver_document SET ?", document);
+    await query("UPDATE driver SET IDDriverStatus = ? WHERE IDDriver = ?", [1, document.IDDriver]);
 
     return true;
   } catch (error) {

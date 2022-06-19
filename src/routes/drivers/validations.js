@@ -156,35 +156,34 @@ export const createValidations = () => [
 export const driverDocumentValidations = () => [
   body("document")
     .isObject()
-    .withMessage("El documento es incorecto.")
+    .withMessage("El documento sleccionado es incorrecto.")
     .bail()
 
     .custom(async (value) => {
       const allowedDocuments = DRIVER_DOCUMENTS.map((doc) => doc.name);
+      const { title } = value;
 
-      if (!value.title || (value.title && !allowedDocuments.includes(value.title))) {
-        return Promise.reject("El documento es incorrecto.");
+      if (!title || (title && !allowedDocuments.includes(value.title))) {
+        return Promise.reject("El documento sleccionado es incorrecto.");
       }
 
-      if (value.title === allowedDocuments[0]) {
+      if (title === allowedDocuments[0]) {
         const { name, lastname, identificationCode, gender, expedition, expiration, type } = value;
 
         if (!name || !lastname || !identificationCode || !gender || !expedition || !expiration || !type) {
           return Promise.reject("El documento no contiene los campos requeridos.");
         }
 
-        const result1 = await query("SELECT IDDriver, Name, Lastname, IdentificationCode, Gender FROM driver WHERE IdentificationCode = ?", identificationCode) /* prettier-ignore */
+        const [driver] = await query("SELECT IDDriver, Name, Lastname, IdentificationCode, Gender FROM driver WHERE IdentificationCode = ?", identificationCode) /* prettier-ignore */
 
-        if (!result1.length) {
+        if (!driver) {
           return Promise.reject("El conductor seleccionado no se encuentra registrado.");
         }
 
-        const driver = result1[0];
+        const [driverDocument] = await query("SELECT IDDriverDocument FROM driver_document WHERE IDDriver = ?", driver.IDDriver); /* prettier-ignore */
 
-        const result2 = await query("SELECT IDDriverDocument FROM driver_document WHERE IDDriver = ?", driver.IDDriver);
-
-        if (result2.length) {
-          return Promise.reject("El documento se encuentra registrado para este conductor.");
+        if (driverDocument) {
+          return Promise.reject("El documento ya se encuentra registrado para este conductor.");
         }
 
         const allowedGenders = USER_GENDERS.reduce((prev, curr) => ({ ...prev, [curr.name]: curr.name }), {});
@@ -214,8 +213,6 @@ export const driverDocumentValidations = () => [
 
         return Promise.resolve();
       }
-
-      return Promise.reject("El tipo de documento es incorrecto.");
     }),
 ];
 
