@@ -1,10 +1,14 @@
 import express from "express";
+
 import { validate, createValidations, driverDocumentValidations, driversByQueriesValidations } from "./validations";
-import { base64Image } from "../../utils/image";
 import { createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries } from "./drivers";
-import bcrypt from "bcrypt";
+
+import { base64Image } from "../../utils/image";
 import cloudinary from "../../cloud/cloudinary";
+import bcrypt from "bcrypt";
+
 import { successResponse, errorResponse, responseCodes } from "../../responses";
+import { DRIVER_DOCUMENTS } from "../../constants";
 
 const router = express.Router();
 
@@ -68,9 +72,7 @@ router.post("/documents", driverDocumentValidations(), validate, async (req, res
 });
 
 router.get("/documents", (req, res) => {
-  const documents = [{ id: 1, name: "Licencia de conducir", value: "Driver License" }];
-
-  res.status(responseCodes.HTTP_200_OK).json(successResponse(documents));
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(DRIVER_DOCUMENTS));
 });
 
 export default router;

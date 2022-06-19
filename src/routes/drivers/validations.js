@@ -1,8 +1,11 @@
 import { body, validationResult } from "express-validator";
-import { responseCodes, errorResponse } from "../../responses";
+
 import { extname } from "path";
 import moment from "moment";
 import query from "../../database";
+
+import { responseCodes, errorResponse } from "../../responses";
+import { DRIVER_DOCUMENTS } from "../../constants";
 
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -151,10 +154,14 @@ export const driverDocumentValidations = () => [
     .bail()
 
     .custom(async (value) => {
-      const allowedDocuments = ["Driver License"];
+      const allowedDocuments = DRIVER_DOCUMENTS.map((doc) => doc.name);
 
-      if (value?.title === allowedDocuments[0]) {
-        const { title, name, lastname, identificationCode, gender, expedition, expiration, type } = value;
+      if (!value.title || (value.title && !allowedDocuments.includes(value.title))) {
+        return Promise.reject("El documento es incorrecto.");
+      }
+
+      if (value.title === allowedDocuments[0]) {
+        const { name, lastname, identificationCode, gender, expedition, expiration, type } = value;
 
         if (!name || !lastname || !identificationCode || !gender || !expedition || !expiration || !type) {
           return Promise.reject("El documento no contiene los campos requeridos.");
