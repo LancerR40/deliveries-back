@@ -25,7 +25,7 @@ export const createValidations = () => [
     .withMessage("Debes ingresar un nombre.")
     .bail()
 
-    .matches(/^[a-zA-Z\s]*$/)
+    .matches(/^[A-zÀ-ÖØ-öø-ÿ\s]*$/)
     .withMessage("El nombre es inválido.")
     .bail()
 
@@ -38,7 +38,7 @@ export const createValidations = () => [
     .withMessage("Debes ingresar un apellido.")
     .bail()
 
-    .matches(/^[a-zA-Z\s]*$/)
+    .matches(/^[A-zÀ-ÖØ-öø-ÿ\s]*$/)
     .withMessage("El apellido es inválido.")
     .bail()
 

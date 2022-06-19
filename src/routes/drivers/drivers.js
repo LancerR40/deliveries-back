@@ -60,6 +60,7 @@ export const getDriversByQueries = async (queries) => {
       return {
         drivers: await query(sql1, params),
         counter: counter[0].counter,
+        perPage: limit,
       };
     }
 
