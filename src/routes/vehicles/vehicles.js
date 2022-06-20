@@ -45,8 +45,8 @@ export const vehiclesByQueries = async (payload) => {
   try {
     const { search } = payload;
 
-    let sql1 = "SELECT v.IDVehicle as vehicleId, v.Model as model, v.Brand as brand, v.Color as color, v.Type as type, v.LicenseNumber as licenseNumber, v.TiresNumber as tiresNumber, v.CreatedAt as createdAt, s.StatusName as statusName, s.Description as statusDescription FROM vehicle as v INNER JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus"; /* prettier-ignore */
-    let sql2 = "SELECT COUNT(v.IDVehicle) FROM vehicle as v INNER JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus"; /* prettier-ignore */
+    let sql1 = "SELECT v.IDVehicle as vehicleId, v.Model as model, v.Brand as brand, v.Color as color, v.Type as type, v.LicenseNumber as licenseNumber, v.TiresNumber as tiresNumber, v.CreatedAt as createdAt, s.StatusName as statusName, s.Description as statusDescription, json_extract(Document, '$.name') as ownerName, json_extract(Document, '$.lastname') as ownerLastname FROM vehicle as v INNER JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus INNER JOIN vehicle_document as vc ON v.IDVehicle = vc.IDVehicle"; /* prettier-ignore */
+    let sql2 = "SELECT COUNT(v.IDVehicle) FROM vehicle as v INNER JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus INNER JOIN vehicle_document as vc ON v.IDVehicle = vc.IDVehicle"; /* prettier-ignore */
     const params = [];
 
     if (search.field) {
@@ -77,6 +77,6 @@ export const vehiclesByQueries = async (payload) => {
       vehicles: await query(sql1, params),
     };
   } catch (error) {
-    return error;
+    return false;
   }
 };

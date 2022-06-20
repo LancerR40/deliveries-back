@@ -16,11 +16,16 @@ router.post("/", vehiclesByQueriesValidations(), validate, async (req, res) => {
     return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema al realizar la búsqueda."));
   }
 
-  result.vehicles = result.vehicles.map((vehicle) => ({
-    ...vehicle,
-    color: JSON.parse(vehicle.color),
-    createdAt: moment(vehicle.createdAt).local().format("lll"),
-  }));
+  result.vehicles = result.vehicles.map((vehicle) => {
+    const { ownerName, ownerLastname, color, createdAt } = vehicle;
+    return {
+      ...vehicle,
+      ownerName: JSON.parse(ownerName),
+      ownerLastname: ownerLastname ? JSON.parse(ownerLastname) : null,
+      color: JSON.parse(color),
+      createdAt: moment(createdAt).local().format("lll"),
+    };
+  });
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse(result));
 });
