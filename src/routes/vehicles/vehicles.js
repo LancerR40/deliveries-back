@@ -40,3 +40,43 @@ export const createVehicleDocument = async (document) => {
     return false;
   }
 };
+
+export const vehiclesByQueries = async (payload) => {
+  try {
+    const { search } = payload;
+
+    let sql1 = "SELECT v.IDVehicle as vehicleId, v.Model as model, v.Brand as brand, v.Color as color, v.Type as type, v.LicenseNumber as licenseNumber, v.TiresNumber as tiresNumber, v.CreatedAt as createdAt, s.StatusName as statusName, s.Description as statusDescription FROM vehicle as v INNER JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus"; /* prettier-ignore */
+    let sql2 = "SELECT COUNT(v.IDVehicle) FROM vehicle as v INNER JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus"; /* prettier-ignore */
+    const params = [];
+
+    if (search.field) {
+      sql1 += ` WHERE Model LIKE ? OR Brand LIKE ? OR LicenseNumber LIKE ?`;
+      sql2 += ` WHERE Model LIKE ? OR Brand LIKE ? OR LicenseNumber LIKE ?`;
+
+      params.push(search.field + "%", search.field + "%", search.field + "%");
+    }
+
+    if (search.page) {
+      const counter = await query(sql2, params);
+
+      const limit = 8;
+      const offset = Number(search.page) * limit - limit;
+
+      sql1 += " LIMIT ? OFFSET ?";
+      params.push(limit);
+      params.push(offset);
+
+      return {
+        vehicles: await query(sql1, params),
+        counter: counter[0].counter,
+        perPage: limit,
+      };
+    }
+
+    return {
+      vehicles: await query(sql1, params),
+    };
+  } catch (error) {
+    return error;
+  }
+};

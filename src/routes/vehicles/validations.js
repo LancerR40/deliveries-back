@@ -183,3 +183,15 @@ export const vehicleDocumentValidations = () => [
       }
     }),
 ];
+
+export const vehiclesByQueriesValidations = () => [
+  body("search").custom((value) => {
+    const { page } = value;
+
+    if ((page && !Number(page)) || page === 0) {
+      throw new Error("Hubo un problema al realizar la búsqueda.");
+    }
+
+    return true;
+  }),
+];
