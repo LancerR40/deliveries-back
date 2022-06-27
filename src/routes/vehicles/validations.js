@@ -35,8 +35,8 @@ export const createVehicleValidations = () => [
     .bail()
 
     .custom((value) => {
-      if (value.length > 2) {
-        throw new Error("Solo se deben agregar un máximo de dos (2) colores.");
+      if (!value.length || value.length > 2) {
+        throw new Error("Se debe agregar al menos un color o un máximo de dos (2) colores.");
       }
 
       return true;
