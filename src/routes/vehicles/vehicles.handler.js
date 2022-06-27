@@ -5,7 +5,7 @@ import { validate, createVehicleValidations, vehicleDocumentValidations, vehicle
 import moment from "moment";
 
 import { successResponse, responseCodes, errorResponse } from "../../responses";
-import { VEHICLE_BRANDS } from "../../constants";
+import { VEHICLE_BRANDS, VEHICLE_DOCUMENTS } from "../../constants";
 
 const router = express.Router();
 
@@ -61,6 +61,10 @@ router.post("/document", vehicleDocumentValidations(), validate, async (req, res
 
 router.get("/brands", (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse(VEHICLE_BRANDS));
+});
+
+router.get("/documents", (req, res) => {
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(VEHICLE_DOCUMENTS));
 });
 
 export default router;
