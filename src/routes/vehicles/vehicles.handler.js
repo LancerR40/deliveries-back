@@ -1,8 +1,8 @@
 import express from "express";
+import moment from "moment";
 
 import { createVehicle, createVehicleDocument, vehiclesByQueries } from "./vehicles";
 import { validate, createVehicleValidations, vehicleDocumentValidations, vehiclesByQueriesValidations } from "./validations"; /* prettier-ignore */
-import moment from "moment";
 
 import { successResponse, responseCodes, errorResponse } from "../../responses";
 import { VEHICLE_BRANDS, VEHICLE_DOCUMENTS } from "../../constants";
@@ -44,7 +44,7 @@ router.post("/create", createVehicleValidations(), validate, async (req, res) =>
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
 });
 
-router.post("/document", vehicleDocumentValidations(), validate, async (req, res) => {
+router.post("/documents", vehicleDocumentValidations(), validate, async (req, res) => {
   const { document } = req.body;
   const { name } = document;
 
