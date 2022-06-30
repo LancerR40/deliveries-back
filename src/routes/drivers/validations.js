@@ -19,7 +19,7 @@ export const validate = (req, res, next) => {
   next();
 };
 
-export const createValidations = () => [
+export const createDriverValidations = () => [
   body("name")
     .notEmpty()
     .withMessage("Debes ingresar un nombre.")
@@ -153,7 +153,7 @@ export const createValidations = () => [
     .bail(),
 ];
 
-export const driverDocumentValidations = () => [
+export const createDocumentValidations = () => [
   body("document")
     .isObject()
     .withMessage("El documento sleccionado es incorrecto.")

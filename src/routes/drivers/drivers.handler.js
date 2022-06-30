@@ -1,12 +1,17 @@
 import express from "express";
-
-import { validate, createValidations, driverDocumentValidations, driversByQueriesValidations } from "./validations";
-import { createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries } from "./drivers";
-
-import { base64Image } from "../../utils/image";
-import cloudinary from "../../cloud/cloudinary";
 import bcrypt from "bcrypt";
 import moment from "moment";
+
+import {
+  validate,
+  createDriverValidations,
+  createDocumentValidations,
+  driversByQueriesValidations,
+} from "./validations";
+import { createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries } from "./drivers";
+
+import cloudinary from "../../cloud/cloudinary";
+import { base64Image } from "../../utils/image";
 
 import { successResponse, errorResponse, responseCodes } from "../../responses";
 import { DRIVER_DOCUMENTS } from "../../constants";
@@ -28,7 +33,7 @@ router.post("/", driversByQueriesValidations(), validate, async (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse(result));
 });
 
-router.post("/create", createValidations(), validate, async (req, res) => {
+router.post("/create", createDriverValidations(), validate, async (req, res) => {
   const { name: Name, lastname: Lastname, identificationCode: IdentificationCode, gender: Gender, dateOfBirth: DateOfBirth, email: Email, password: Password } = req.body; /* prettier-ignore */
   const { photo } = req.files;
 
@@ -54,12 +59,11 @@ router.post("/create", createValidations(), validate, async (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
 });
 
-router.post("/documents", driverDocumentValidations(), validate, async (req, res) => {
+router.post("/documents", createDocumentValidations(), validate, async (req, res) => {
   const { document } = req.body;
   const { title, name, lastname, identificationCode, gender, expedition, expiration, type } = document;
 
   const reorganizedDocument = { title, name, lastname, identificationCode, gender, expedition, expiration, type };
-
   const driverId = await getDriverIdByIdentificationCode(identificationCode);
 
   if (!driverId) {
@@ -68,9 +72,7 @@ router.post("/documents", driverDocumentValidations(), validate, async (req, res
       .json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
   }
 
-  const driverDocument = { IDDriver: driverId, title, Document: JSON.stringify(reorganizedDocument) };
-
-  if (!(await createDriverDocument(driverDocument))) {
+  if (!(await createDriverDocument({ IDDriver: driverId, title, Document: JSON.stringify(reorganizedDocument) }))) {
     return res
       .status(responseCodes.HTTP_200_OK)
       .json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
