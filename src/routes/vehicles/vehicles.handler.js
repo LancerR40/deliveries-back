@@ -1,7 +1,7 @@
 import express from "express";
 import moment from "moment";
 
-import { createVehicle, createVehicleDocument, vehiclesByQueries } from "./vehicles";
+import { createVehicle, createVehicleDocument, vehiclesByQueries, getSuperAdmin } from "./vehicles";
 import { validate, createVehicleValidations, vehicleDocumentValidations, vehiclesByQueriesValidations } from "./validations"; /* prettier-ignore */
 
 import { successResponse, responseCodes, errorResponse } from "../../responses";
@@ -18,10 +18,11 @@ router.post("/", vehiclesByQueriesValidations(), validate, async (req, res) => {
 
   result.vehicles = result.vehicles.map((vehicle) => {
     const { ownerName, ownerLastname, color, createdAt } = vehicle;
+
     return {
       ...vehicle,
       ownerName: JSON.parse(ownerName),
-      ownerLastname: ownerLastname ? JSON.parse(ownerLastname) : null,
+      ownerLastname: JSON.parse(ownerLastname),
       color: JSON.parse(color),
       createdAt: moment(createdAt).local().format("lll"),
     };
@@ -31,9 +32,8 @@ router.post("/", vehiclesByQueriesValidations(), validate, async (req, res) => {
 });
 
 router.post("/create", createVehicleValidations(), validate, async (req, res) => {
-  const vehicle = { ...req.body, color: JSON.stringify(req.body.colors) };
+  const vehicle = { ...req.body, color: JSON.stringify(req.body.colors), IDVehicleStatus: 2 };
   delete vehicle.colors;
-  vehicle.IDVehicleStatus = 2;
 
   const result = await createVehicle(vehicle);
 
@@ -45,12 +45,16 @@ router.post("/create", createVehicleValidations(), validate, async (req, res) =>
 });
 
 router.post("/documents", vehicleDocumentValidations(), validate, async (req, res) => {
-  const { document } = req.body;
-  const { name } = document;
+  let { document } = req.body;
 
-  const vehicleDocument = { ...document, name: !name ? "Compañia" : name };
+  if (!document.name && !document.lastname && !document.identificationCode) {
+    const superAdmin = await getSuperAdmin();
+    const { name, lastname, identificationCode } = superAdmin;
 
-  const result = await createVehicleDocument(vehicleDocument);
+    document = { ...document, name, lastname, identificationCode };
+  }
+
+  const result = await createVehicleDocument(document);
 
   if (!result) {
     return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Error al registrar documento, intenta de nuevo"));

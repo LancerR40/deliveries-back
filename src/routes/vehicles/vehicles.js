@@ -2,24 +2,10 @@ import query from "../../database";
 
 export const createVehicle = async (vehicle) => {
   try {
-    const owner = vehicle.owner;
-    delete vehicle.owner;
-
-    const { insertId: IDVehicle } = await query("INSERT INTO vehicle SET ?", vehicle);
-
-    if (owner === "Company") {
-      await query("INSERT INTO company_vehicle SET ?", { IDVehicle });
-      return true;
-    }
-
-    const [driver] = await query("SELECT IDDriver FROM driver WHERE IdentificationCode = ?", owner);
-    const { IDDriver } = driver;
-
-    await query("INSERT INTO driver_vehicle SET ?", { IDDriver, IDVehicle });
+    await query("INSERT INTO vehicle SET ?", vehicle);
 
     return true;
   } catch (error) {
-    console.log(error);
     return false;
   }
 };
@@ -27,13 +13,17 @@ export const createVehicle = async (vehicle) => {
 export const createVehicleDocument = async (document) => {
   try {
     const [vehicle] = await query("SELECT IDVehicle FROM vehicle WHERE LicenseNumber = ?", document.licenseNumber);
+
     const { IDVehicle } = vehicle;
     const { title: Title } = document;
+
     const Document = JSON.stringify(document);
 
-    // Insert document and update status to available
     await query("INSERT INTO vehicle_document SET ?", { IDVehicle, Title, Document });
-    await query("UPDATE vehicle SET IDVehicleStatus = ? WHERE IDVehicle = ?", [1, IDVehicle]);
+
+    if (!(await updateVehicleStatus(1, IDVehicle))) {
+      return false;
+    }
 
     return true;
   } catch (error) {
@@ -41,12 +31,22 @@ export const createVehicleDocument = async (document) => {
   }
 };
 
+const updateVehicleStatus = async (status, vehicleId) => {
+  try {
+    await query("UPDATE vehicle SET IDVehicleStatus = ? WHERE IDVehicle = ?", [status, vehicleId]);
+
+    return true;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const vehiclesByQueries = async (payload) => {
   try {
     const { search } = payload;
 
-    let sql1 = "SELECT v.IDVehicle as vehicleId, v.Model as model, v.Brand as brand, v.Color as color, v.Type as type, v.LicenseNumber as licenseNumber, v.TiresNumber as tiresNumber, v.CreatedAt as createdAt, s.StatusName as statusName, s.Description as statusDescription, json_extract(Document, '$.name') as ownerName, json_extract(Document, '$.lastname') as ownerLastname FROM vehicle as v INNER JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus INNER JOIN vehicle_document as vc ON v.IDVehicle = vc.IDVehicle"; /* prettier-ignore */
-    let sql2 = "SELECT COUNT(v.IDVehicle) FROM vehicle as v INNER JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus INNER JOIN vehicle_document as vc ON v.IDVehicle = vc.IDVehicle"; /* prettier-ignore */
+    let sql1 = "SELECT v.IDVehicle as vehicleId, v.Model as model, v.Brand as brand, v.Color as color, v.Type as type, v.LicenseNumber as licenseNumber, v.TiresNumber as tiresNumber, v.CreatedAt as createdAt, s.StatusName as statusName, s.Description as statusDescription, json_extract(Document, '$.name') as ownerName, json_extract(Document, '$.lastname') as ownerLastname FROM vehicle as v LEFT JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus LEFT JOIN vehicle_document as vc ON v.IDVehicle = vc.IDVehicle"; /* prettier-ignore */
+    let sql2 = "SELECT COUNT(v.IDVehicle) as counter FROM vehicle as v LEFT JOIN vehicle_status as s ON v.IDVehicleStatus = s.IDVehicleStatus LEFT JOIN vehicle_document as vc ON v.IDVehicle = vc.IDVehicle"; /* prettier-ignore */
     const params = [];
 
     if (search.field) {
@@ -58,6 +58,7 @@ export const vehiclesByQueries = async (payload) => {
 
     if (search.page) {
       const counter = await query(sql2, params);
+      console.log(counter);
 
       const limit = 8;
       const offset = Number(search.page) * limit - limit;
@@ -76,6 +77,19 @@ export const vehiclesByQueries = async (payload) => {
     return {
       vehicles: await query(sql1, params),
     };
+  } catch (error) {
+    return false;
+  }
+};
+
+export const getSuperAdmin = async () => {
+  try {
+    const result = await query(
+      "SELECT Name as name, Lastname as lastname, IdentificationCode as identificationCode FROM admin WHERE Role = ?",
+      1
+    );
+
+    return result[0];
   } catch (error) {
     return false;
   }
