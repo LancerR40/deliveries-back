@@ -10,7 +10,7 @@ import {
 } from "./validations";
 import { createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries } from "./drivers";
 
-import cloudinary from "../../cloud/cloudinary";
+import { uploadImage } from "../../utils/cloudinary";
 import { base64Image } from "../../utils/image";
 
 import { successResponse, errorResponse, responseCodes } from "../../responses";
@@ -34,36 +34,79 @@ router.post("/", driversByQueriesValidations(), validate, async (req, res) => {
 });
 
 router.post("/create", createDriverValidations(), validate, async (req, res) => {
-  const { name: Name, lastname: Lastname, identificationCode: IdentificationCode, gender: Gender, dateOfBirth: DateOfBirth, email: Email, password: Password } = req.body; /* prettier-ignore */
+  const { name, lastname, identificationCode, gender, dateOfBirth, email, password, document } = req.body;
   const { photo } = req.files;
+  const encryptedPassword = await bcrypt.hash(password, 8);
 
   const imageBase64 = base64Image(photo);
+  const cloudResponse = await uploadImage(imageBase64, "deliveries-system/driver-photo");
 
-  let photoUrl = null;
-
-  try {
-    const { secure_url } = await cloudinary.uploader.upload(imageBase64, { folder: "deliveries-system/driver-photo" });
-    photoUrl = secure_url;
-  } catch (error) {
-    res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
-  }
-
-  const driver = { Name, Lastname, IdentificationCode, Gender, Photo: photoUrl,  DateOfBirth, Email, Password: await bcrypt.hash(Password, 8), IDDriverStatus: 3 } /* prettier-ignore */
-
-  if (!(await createDriver(driver))) {
+  if (!cloudResponse) {
     return res
       .status(responseCodes.HTTP_200_OK)
-      .json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
+      .json(errorResponse("Hubo un problema en el registro del conductor, intenta de nuevo 1."));
+  }
+
+  const result = await createDriver({
+    name,
+    lastname,
+    identificationCode,
+    gender,
+    dateOfBirth,
+    email,
+    password: encryptedPassword,
+    photo: cloudResponse.secure_url,
+    IDDriverStatus: 3,
+  });
+
+  if (!result) {
+    return res
+      .status(responseCodes.HTTP_200_OK)
+      .json(errorResponse("Hubo un problema en el registro del conductor, intenta de nuevo 2."));
+  }
+
+  if (document) {
+    const formatedDocument = JSON.parse(document);
+
+    const IDDriver = result.insertId;
+    const { title, expedition, expiration, type } = formatedDocument;
+
+    const reorganizedDocument = JSON.stringify({
+      title,
+      name,
+      lastname,
+      identificationCode,
+      gender,
+      expedition,
+      expiration,
+      type,
+    });
+
+    const driverDocumentResult = await createDriverDocument({ IDDriver, title, document: reorganizedDocument });
+
+    if (!driverDocumentResult) {
+      return res
+        .status(responseCodes.HTTP_200_OK)
+        .json(errorResponse("Hubo un problema en el registro del documento, intenta de nuevo 3."));
+    }
   }
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
 });
 
 router.post("/documents", createDocumentValidations(), validate, async (req, res) => {
-  const { document } = req.body;
-  const { title, name, lastname, identificationCode, gender, expedition, expiration, type } = document;
+  const { title, name, lastname, identificationCode, gender, expedition, expiration, type } = req.body.document;
 
-  const reorganizedDocument = { title, name, lastname, identificationCode, gender, expedition, expiration, type };
+  const reorganizedDocument = JSON.stringify({
+    title,
+    name,
+    lastname,
+    identificationCode,
+    gender,
+    expedition,
+    expiration,
+    type,
+  });
   const driverId = await getDriverIdByIdentificationCode(identificationCode);
 
   if (!driverId) {
@@ -72,7 +115,7 @@ router.post("/documents", createDocumentValidations(), validate, async (req, res
       .json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));
   }
 
-  if (!(await createDriverDocument({ IDDriver: driverId, title, Document: JSON.stringify(reorganizedDocument) }))) {
+  if (!(await createDriverDocument({ IDDriver: driverId, title, Document: reorganizedDocument }))) {
     return res
       .status(responseCodes.HTTP_200_OK)
       .json(errorResponse("Hubo un problema en el registro, intenta de nuevo."));

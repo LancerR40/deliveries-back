@@ -2,9 +2,7 @@ import query from "../../database";
 
 export const createDriver = async (driver) => {
   try {
-    await query("INSERT INTO driver SET ?", driver);
-
-    return true;
+    return await query("INSERT INTO driver SET ?", driver);
   } catch (error) {
     return false;
   }
@@ -13,8 +11,9 @@ export const createDriver = async (driver) => {
 export const createDriverDocument = async (document) => {
   try {
     await query("INSERT INTO driver_document SET ?", document);
+    const updateResult = await updateDriverStatus(4, document.IDDriver);
 
-    if (!(await updateDriverStatus(1, document.IDDriver))) {
+    if (!updateResult) {
       return false;
     }
 
@@ -27,6 +26,8 @@ export const createDriverDocument = async (document) => {
 export const updateDriverStatus = async (status, driverId) => {
   try {
     await query("UPDATE driver SET IDDriverStatus = ? WHERE IDDriver = ?", [status, driverId]);
+
+    return true;
   } catch (error) {
     return false;
   }

@@ -1,6 +1,6 @@
+import { extname } from "path";
 import { body, validationResult } from "express-validator";
 
-import { extname } from "path";
 import moment from "moment";
 import query from "../../database";
 
@@ -151,23 +151,77 @@ export const createDriverValidations = () => [
     .isLength({ min: "6", max: "255" })
     .withMessage("La contraseña debe tener más de seis (6) carácteres")
     .bail(),
+
+  body("document").custom(async (value, { req }) => {
+    const allowedDocuments = DRIVER_DOCUMENTS.map((doc) => doc.name);
+    let document = value;
+
+    if (!document) {
+      return Promise.resolve();
+    }
+
+    if (!JSON.parse(document)) {
+      return Promise.reject("El documento seleccionado es incorrecto.");
+    }
+
+    document = JSON.parse(document);
+
+    if (!document.title || !allowedDocuments.includes(document.title)) {
+      return Promise.reject("El documento seleccionado es incorrecto.");
+    }
+
+    const { expedition, expiration, type } = document;
+    const { identificationCode } = req.body;
+
+    if (!expedition || !expiration || !type) {
+      return Promise.reject("El documento no contiene los campos requeridos.");
+    }
+
+    const [driverDocument] = await query(
+      "SELECT dd.Title as title FROM driver as d INNER JOIN driver_document as dd ON d.IDDriver = dd.IDDriver WHERE d.IdentificationCode = ?",
+      identificationCode
+    );
+
+    if (driverDocument?.title === document?.title) {
+      return Promise.reject("El documento ya se encuentra registrado para este conductor.");
+    }
+
+    const currentMoment = moment(new Date());
+    const expeditionMoment = moment(expedition);
+    const expirationMoment = moment(expiration);
+
+    if (expeditionMoment.isAfter(currentMoment)) {
+      return Promise.reject("La fecha de expedición del documento es incorrecta.");
+    }
+
+    if (expirationMoment.isSameOrBefore(expeditionMoment)) {
+      return Promise.reject("La fecha de expiración indica que el documento ya no es válido.");
+    }
+
+    const allowedTypes = ["A", "B", "C"];
+
+    if (!allowedTypes.includes(type)) {
+      return Promise.reject("El tipo de licencia es incorrecta.");
+    }
+
+    return Promise.resolve();
+  }),
 ];
 
 export const createDocumentValidations = () => [
   body("document")
     .isObject()
-    .withMessage("El documento sleccionado es incorrecto.")
+    .withMessage("El documento seleccionado es incorrecto.")
     .bail()
 
     .custom(async (value) => {
       const allowedDocuments = DRIVER_DOCUMENTS.map((doc) => doc.name);
-      const { title } = value;
 
-      if (!title || (title && !allowedDocuments.includes(value.title))) {
-        return Promise.reject("El documento sleccionado es incorrecto.");
+      if (!allowedDocuments.includes(value.title)) {
+        return Promise.reject("El documento seleccionado es incorrecto.");
       }
 
-      if (title === allowedDocuments[0]) {
+      if (value.title === allowedDocuments[0]) {
         const { name, lastname, identificationCode, gender, expedition, expiration, type } = value;
 
         if (!name || !lastname || !identificationCode || !gender || !expedition || !expiration || !type) {
