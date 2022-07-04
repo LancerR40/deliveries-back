@@ -1,8 +1,11 @@
 import { body, validationResult } from "express-validator";
-import { responseCodes, errorResponse } from "../../responses";
 import { extname } from "path";
+
 import moment from "moment";
 import query from "../../database";
+
+import { responseCodes, errorResponse } from "../../responses";
+import { USER_GENDERS } from "../../constants";
 
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -71,9 +74,15 @@ export const createValidations = () => [
     .withMessage("Debes ingresar un género.")
     .bail()
 
-    .matches(/^[1-2]*$/)
-    .withMessage("El género es inválido.")
-    .bail(),
+    .custom((value) => {
+      const allowedGenders = USER_GENDERS.map(({ name }) => name);
+
+      if (!allowedGenders.includes(value)) {
+        throw new Error("El género es incorrecto.");
+      }
+
+      return true;
+    }),
 
   body("photo").custom((value, { req }) => {
     if (!req.files || !req.files.photo) {
