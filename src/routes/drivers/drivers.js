@@ -47,8 +47,8 @@ export const getDriversByQueries = async (queries) => {
   try {
     const { search } = queries;
 
-    let sql1 = `SELECT IDDriver as driverId, Name as name, Lastname as lastname, IdentificationCode as identificationCode, Gender as gender, Photo as photo, Email as email, CreatedAt as createdAt FROM driver`; /* prettier-ignore */
-    let sql2 = `SELECT COUNT(IDDriver) as counter FROM driver`;
+    let sql1 = `SELECT d.IDDriver as driverId, d.Name as name, d.Lastname as lastname, d.IdentificationCode as identificationCode, d.Gender as gender, d.Photo as photo, d.Email as email, d.CreatedAt as createdAt, ds.StatusName as statusName, ds.Description as statusDescription FROM driver as d INNER JOIN driver_status as ds ON d.IDDriverStatus = ds.IDDriverStatus`; /* prettier-ignore */
+    let sql2 = `SELECT COUNT(IDDriver) as counter FROM driver as d INNER JOIN driver_status as ds ON d.IDDriverStatus = ds.IDDriverStatus`;
     const params = [];
 
     if (search.field) {
