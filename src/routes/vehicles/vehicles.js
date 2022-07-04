@@ -2,26 +2,22 @@ import query from "../../database";
 
 export const createVehicle = async (vehicle) => {
   try {
-    await query("INSERT INTO vehicle SET ?", vehicle);
-
-    return true;
+    return await query("INSERT INTO vehicle SET ?", vehicle);
   } catch (error) {
     return false;
   }
 };
 
-export const createVehicleDocument = async (document) => {
+export const createVehicleDocument = async (document, vehicleId) => {
   try {
-    const [vehicle] = await query("SELECT IDVehicle FROM vehicle WHERE LicenseNumber = ?", document.licenseNumber);
+    const { title } = document;
+    const toInsert = { IDVehicle: vehicleId, title, document: JSON.stringify(document) };
 
-    const { IDVehicle } = vehicle;
-    const { title: Title } = document;
+    await query("INSERT INTO vehicle_document SET ?", toInsert);
 
-    const Document = JSON.stringify(document);
+    const updateResult = await updateVehicleStatus(1, vehicleId);
 
-    await query("INSERT INTO vehicle_document SET ?", { IDVehicle, Title, Document });
-
-    if (!(await updateVehicleStatus(1, IDVehicle))) {
+    if (!updateResult) {
       return false;
     }
 

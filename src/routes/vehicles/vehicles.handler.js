@@ -2,7 +2,7 @@ import express from "express";
 import moment from "moment";
 
 import { createVehicle, createVehicleDocument, vehiclesByQueries, getSuperAdmin } from "./vehicles";
-import { validate, createVehicleValidations, vehicleDocumentValidations, vehiclesByQueriesValidations } from "./validations"; /* prettier-ignore */
+import { validate, createVehicleValidations, vehiclesByQueriesValidations } from "./validations";
 
 import { successResponse, responseCodes, errorResponse } from "../../responses";
 import { VEHICLE_BRANDS, VEHICLE_DOCUMENTS } from "../../constants";
@@ -32,35 +32,40 @@ router.post("/", vehiclesByQueriesValidations(), validate, async (req, res) => {
 });
 
 router.post("/create", createVehicleValidations(), validate, async (req, res) => {
-  const vehicle = { ...req.body, color: JSON.stringify(req.body.colors), IDVehicleStatus: 2 };
-  delete vehicle.colors;
+  const { model, brand, colors, type, licenseNumber, tiresNumber, document } = req.body;
+  const { title, name, lastname, identificationCode, maximumLoadMass, expedition } = document;
+  const color = JSON.stringify(colors);
 
-  const result = await createVehicle(vehicle);
+  const vehicle = { model, brand, color, type, licenseNumber, tiresNumber, IDVehicleStatus: 2 };
+  let reorganizedDocument = {
+    title,
+    name,
+    lastname,
+    identificationCode,
+    licenseNumber,
+    brand,
+    type,
+    color,
+    maximumLoadMass,
+    expedition,
+  };
+
+  let result = await createVehicle(vehicle);
 
   if (!result) {
-    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error, vuelve a intentar."));
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error. Por favor, intenta más tarde."));
   }
 
-  res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
-});
-
-router.post("/documents", vehicleDocumentValidations(), validate, async (req, res) => {
-  let { document } = req.body;
-
-  if (!document.name && !document.lastname && !document.identificationCode) {
+  if (!name && !lastname && !identificationCode) {
     const superAdmin = await getSuperAdmin();
     const { name, lastname, identificationCode } = superAdmin;
 
-    document = { ...document, name, lastname, identificationCode };
+    reorganizedDocument = { ...reorganizedDocument, name, lastname, identificationCode };
   }
 
-  const result = await createVehicleDocument(document);
+  result = await createVehicleDocument(reorganizedDocument, result.insertId);
 
-  if (!result) {
-    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Error al registrar documento, intenta de nuevo"));
-  }
-
-  return res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
+  res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
 });
 
 router.get("/brands", (req, res) => {

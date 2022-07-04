@@ -78,10 +78,8 @@ export const createVehicleValidations = () => [
 
     .matches(/^[0-9]*$/)
     .withMessage("El número de neúmaticos es incorrecto."),
-];
 
-export const vehicleDocumentValidations = () => [
-  body("document").custom(async (value) => {
+  body("document").custom(async (value, { req }) => {
     if (typeof value !== "object") {
       return Promise.reject("El documento seleccionado es incorrecto.");
     }
@@ -94,7 +92,8 @@ export const vehicleDocumentValidations = () => [
     }
 
     if (title === allowedDocuments[0]) {
-      const { name, lastname, identificationCode, licenseNumber, vehicleBrand, vehicleType, vehicleMaximumLoadMass, expedition } = value /* prettier-ignore */
+      const { brand, type, licenseNumber } = req.body;
+      const { name, lastname, identificationCode, maximumLoadMass, expedition } = value;
 
       if (name || lastname || identificationCode) {
         if (!name || !lastname || !identificationCode) {
@@ -112,27 +111,11 @@ export const vehicleDocumentValidations = () => [
         }
       }
 
-      if (!licenseNumber || !vehicleBrand || !vehicleType || !vehicleMaximumLoadMass || !expedition) {
+      if (!licenseNumber || !brand || !type || !maximumLoadMass || !expedition) {
         return Promise.reject("El documento no posee los campos requeridos.");
       }
 
-      const [vehicle] = await query("SELECT IDVehicle, LicenseNumber, Brand, Type FROM vehicle WHERE LicenseNumber = ?", licenseNumber); /* prettier-ignore */
-
-      if (!vehicle) {
-        return Promise.reject("El vehículo no se encuentra registrado.");
-      }
-
-      const [vehicleDocument] = await query("SELECT IDVehicleDocument FROM vehicle_document WHERE IDVehicle = ? && Title = ?", [vehicle.IDVehicle, title]); /* prettier-ignore */
-
-      if (vehicleDocument) {
-        return Promise.reject("El documento se encuentra registrado para este vehículo.");
-      }
-
-      if (licenseNumber !== vehicle.LicenseNumber || vehicleBrand !== vehicle.Brand || vehicleType !== vehicle.Type) {
-        return Promise.reject("Los datos del vehículo son incorrectos.");
-      }
-
-      if (!Number(vehicleMaximumLoadMass)) {
+      if (!Number(maximumLoadMass)) {
         return Promise.reject("El peso máximo de carga del vehículo es inválido.");
       }
 
@@ -163,3 +146,75 @@ export const vehiclesByQueriesValidations = () => [
     return true;
   }),
 ];
+
+// export const vehicleDocumentValidations = () => [
+//   body("document").custom(async (value) => {
+//     if (typeof value !== "object") {
+//       return Promise.reject("El documento seleccionado es incorrecto.");
+//     }
+
+//     const allowedDocuments = VEHICLE_DOCUMENTS.map((doc) => doc.name);
+//     const { title } = value;
+
+//     if (!allowedDocuments.includes(title)) {
+//       return Promise.reject("El documento seleccionado es incorrecto.");
+//     }
+
+//     if (title === allowedDocuments[0]) {
+//       const { name, lastname, identificationCode, licenseNumber, vehicleBrand, vehicleType, vehicleMaximumLoadMass, expedition } = value /* prettier-ignore */
+
+//       if (name || lastname || identificationCode) {
+//         if (!name || !lastname || !identificationCode) {
+//           return Promise.reject("El documento no posee los campos requeridos.");
+//         }
+
+//         const [driver] = await query("SELECT Name, Lastname, IdentificationCode FROM driver WHERE IdentificationCode = ?", identificationCode) /* prettier-ignore */
+
+//         if (!driver) {
+//           return Promise.reject("El conductor no se encuentra registrado.");
+//         }
+
+//         if (name !== driver.Name || lastname !== driver.Lastname || driver.IdentificationCode !== identificationCode) {
+//           return Promise.reject("Los datos del conductor son incorrectos.");
+//         }
+//       }
+
+//       if (!licenseNumber || !vehicleBrand || !vehicleType || !vehicleMaximumLoadMass || !expedition) {
+//         return Promise.reject("El documento no posee los campos requeridos.");
+//       }
+
+//       const [vehicle] = await query("SELECT IDVehicle, LicenseNumber, Brand, Type FROM vehicle WHERE LicenseNumber = ?", licenseNumber); /* prettier-ignore */
+
+//       if (!vehicle) {
+//         return Promise.reject("El vehículo no se encuentra registrado.");
+//       }
+
+//       const [vehicleDocument] = await query("SELECT IDVehicleDocument FROM vehicle_document WHERE IDVehicle = ? && Title = ?", [vehicle.IDVehicle, title]); /* prettier-ignore */
+
+//       if (vehicleDocument) {
+//         return Promise.reject("El documento se encuentra registrado para este vehículo.");
+//       }
+
+//       if (licenseNumber !== vehicle.LicenseNumber || vehicleBrand !== vehicle.Brand || vehicleType !== vehicle.Type) {
+//         return Promise.reject("Los datos del vehículo son incorrectos.");
+//       }
+
+//       if (!Number(vehicleMaximumLoadMass)) {
+//         return Promise.reject("El peso máximo de carga del vehículo es inválido.");
+//       }
+
+//       const currentMoment = moment(new Date());
+//       const expeditionMoment = moment(expedition);
+
+//       if (!expeditionMoment.isValid()) {
+//         return Promise.reject("La fecha de expedición del documento es inválida.");
+//       }
+
+//       if (expeditionMoment.isAfter(currentMoment)) {
+//         return Promise.reject("La fecha de expedición es incorrecta.");
+//       }
+
+//       return Promise.resolve();
+//     }
+//   }),
+// ];
