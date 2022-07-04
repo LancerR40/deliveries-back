@@ -27,6 +27,26 @@ export const createVehicleDocument = async (document, vehicleId) => {
   }
 };
 
+export const createCompanyVehicle = async (vehicleId) => {
+  try {
+    await query("INSERT INTO company_vehicle SET ?", { IDVehicle: vehicleId });
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const createDriverVehicle = async (vehicleId, driverId) => {
+  try {
+    await query("INSERT INTO driver_vehicle SET ?", { IDDriver: driverId, IDVehicle: vehicleId });
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 const updateVehicleStatus = async (status, vehicleId) => {
   try {
     await query("UPDATE vehicle SET IDVehicleStatus = ? WHERE IDVehicle = ?", [status, vehicleId]);
@@ -37,7 +57,7 @@ const updateVehicleStatus = async (status, vehicleId) => {
   }
 };
 
-export const vehiclesByQueries = async (payload) => {
+export const getVehiclesByQueries = async (payload) => {
   try {
     const { search } = payload;
 
@@ -86,6 +106,19 @@ export const getSuperAdmin = async () => {
     );
 
     return result[0];
+  } catch (error) {
+    return false;
+  }
+};
+
+export const getDriverByIdentificationCode = async (identificationCode) => {
+  try {
+    const result = await query(
+      "SELECT IDDriver as driverId FROM driver WHERE IdentificationCode = ?",
+      identificationCode
+    );
+
+    return result[0].driverId;
   } catch (error) {
     return false;
   }
