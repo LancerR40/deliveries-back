@@ -88,7 +88,6 @@ export const getVehiclesByQueries = async (payload) => {
 
     if (search.page) {
       const counter = await query(sql2, params);
-      console.log(counter);
 
       const limit = 8;
       const offset = Number(search.page) * limit - limit;
