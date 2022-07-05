@@ -47,6 +47,20 @@ export const createDriverVehicle = async (vehicleId, driverId) => {
   }
 };
 
+export const createAssignment = async (vehicleId, driverId) => {
+  const assignment = { IDVehicle: vehicleId, IDDriver: driverId };
+
+  try {
+    await query("INSERT INTO assigned_vehicle SET ?", assignment);
+
+    return true;
+  } catch (error) {
+    console.log(error);
+
+    return false;
+  }
+};
+
 const updateVehicleStatus = async (status, vehicleId) => {
   try {
     await query("UPDATE vehicle SET IDVehicleStatus = ? WHERE IDVehicle = ?", [status, vehicleId]);
@@ -119,6 +133,16 @@ export const getDriverByIdentificationCode = async (identificationCode) => {
     );
 
     return result[0].driverId;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const getVehicleByLicenseNumber = async (licenseNumber) => {
+  try {
+    const result = await query("SELECT IDVehicle FROM vehicle WHERE LicenseNumber = ?", licenseNumber);
+
+    return result[0].IDVehicle;
   } catch (error) {
     return false;
   }

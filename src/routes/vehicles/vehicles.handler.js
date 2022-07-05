@@ -6,11 +6,18 @@ import {
   createVehicleDocument,
   createCompanyVehicle,
   createDriverVehicle,
+  createAssignment,
   getVehiclesByQueries,
   getSuperAdmin,
   getDriverByIdentificationCode,
+  getVehicleByLicenseNumber,
 } from "./vehicles";
-import { validate, createVehicleValidations, vehiclesByQueriesValidations } from "./validations";
+import {
+  validate,
+  createVehicleValidations,
+  createAssignmentValidations,
+  vehiclesByQueriesValidations,
+} from "./validations";
 
 import { successResponse, responseCodes, errorResponse } from "../../responses";
 import { VEHICLE_BRANDS, VEHICLE_DOCUMENTS } from "../../constants";
@@ -92,6 +99,21 @@ router.post("/create", createVehicleValidations(), validate, async (req, res) =>
   }
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
+});
+
+router.post("/assignment", createAssignmentValidations(), validate, async (req, res) => {
+  const { driverIdentificationCode, vehicleLicenseNumber } = req.body;
+
+  const driverId = await getDriverByIdentificationCode(driverIdentificationCode);
+  const vehicleId = await getVehicleByLicenseNumber(vehicleLicenseNumber);
+
+  const result = await createAssignment(vehicleId, driverId);
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error. Por favor, intenta más tarde."));
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Asignación éxitosa." }));
 });
 
 router.get("/brands", (req, res) => {
