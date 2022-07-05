@@ -1,15 +1,40 @@
 import express from "express";
 import bcrypt from "bcrypt";
+import jsonwebtoken from "jsonwebtoken";
+import config from "../../config";
 
 import { validate, createValidations } from "./validations";
 
 import { uploadImage } from "../../utils/cloudinary";
 import { base64Image } from "../../utils/image";
 
-import { createAdmin } from "./admins";
+import { createAdmin, getAdminData } from "./admins";
 import { successResponse, errorResponse, responseCodes } from "../../responses";
 
 const router = express.Router();
+
+const isAuth = (req, res, next) => {
+  const accessToken = req.header("access-token");
+
+  if (!accessToken) {
+    return res.status(responseCodes.HTTP_401_UNAUTHORIZED).json(errorResponse("Solicitud denegada."));
+  }
+
+  try {
+    const payload = jsonwebtoken.verify(accessToken, config.TOKEN_KEY);
+    req.admin = payload;
+
+    next();
+  } catch (error) {
+    return res.status(responseCodes.HTTP_401_UNAUTHORIZED).json(errorResponse("Solicitud denegada."));
+  }
+};
+
+router.get("/data", isAuth, async (req, res) => {
+  const admin = await getAdminData(req.admin.id);
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(admin));
+});
 
 router.post("/create", createValidations(), validate, async (req, res) => {
   const { name, lastname, identificationCode, gender, dateOfBirth, email, password } = req.body;

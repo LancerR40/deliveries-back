@@ -9,3 +9,16 @@ export const createAdmin = async (admin) => {
     return false;
   }
 };
+
+export const getAdminData = async (adminId) => {
+  try {
+    const result = await query(
+      "SELECT Name as name, Lastname as lastname, Photo as photo FROM admin WHERE IDAdmin = ?",
+      adminId
+    );
+
+    return result[0];
+  } catch (error) {
+    return false;
+  }
+};
