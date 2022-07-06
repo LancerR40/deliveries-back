@@ -4,7 +4,7 @@ import config from "../../config";
 import query from "../../database";
 import { validate, adminLoginValidations, driverLoginValidations } from "./validations";
 
-import { getDriverIdByEmail } from "./auth";
+import { getDriverIdByEmail, getStatusIdByEmail, updateDriverStatus } from "./auth";
 import { successResponse, responseCodes, errorResponse } from "../../responses";
 
 const router = express.Router();
@@ -53,7 +53,14 @@ router.get("/drivers/session", (req, res) => {
 });
 
 router.post("/drivers/login", driverLoginValidations(), validate, async (req, res) => {
-  const driverId = await getDriverIdByEmail(req.body.email);
+  const { email } = req.body;
+
+  const driverId = await getDriverIdByEmail(email);
+  const driverStatusId = await getStatusIdByEmail(email);
+
+  if (driverStatusId === 4) {
+    await updateDriverStatus(1, driverId);
+  }
 
   const token = jsonwebtoken.sign({ id: driverId }, config.TOKEN_KEY, {
     expiresIn: "1d",

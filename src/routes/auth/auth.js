@@ -25,3 +25,23 @@ export const getDriverIdByEmail = async (email) => {
     return false;
   }
 };
+
+export const getStatusIdByEmail = async (email) => {
+  try {
+    const result = await query("SELECT IDDriverStatus as driverStatusId FROM driver WHERE Email = ?", email);
+
+    return result[0].driverStatusId;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const updateDriverStatus = async (status, driverId) => {
+  try {
+    await query("UPDATE driver SET IDDriverStatus = ? WHERE IDDriver = ?", [status, driverId]);
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+};

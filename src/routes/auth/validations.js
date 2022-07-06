@@ -71,10 +71,19 @@ export const driverLoginValidations = () => [
     .normalizeEmail()
 
     .custom(async (value) => {
-      const result = await query("SELECT IDDriver FROM driver WHERE Email = ?", value);
+      let result = await query("SELECT IDDriver FROM driver WHERE Email = ?", value);
 
       if (!result.length) {
         return Promise.reject("Las credenciales son incorrectas.");
+      }
+
+      result = await query(
+        "SELECT IF (doc.Title = 'Licencia de conducir', true, false) as isExistDriverLicense FROM driver as d LEFT JOIN driver_document as doc ON d.IDDriver = doc.IDDriver WHERE d.Email = ?",
+        value
+      );
+
+      if (!result[0].isExistDriverLicense) {
+        return Promise.reject("Necesitas registrar un documento de licencia de conducir para continuar");
       }
 
       return Promise.resolve();
