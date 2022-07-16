@@ -8,18 +8,7 @@ import { authRoutes, adminsRoutes, driversRoutes, vehiclesRoutes } from "./route
 const app = express();
 
 /* Middlewares */
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:19006",
-      "http://192.168.56.1:3000",
-      "http://192.168.0.197:3000",
-      "http://192.168.0.199:19006",
-    ],
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(fileUpload());
 app.use(express.json());
 
