@@ -31,10 +31,14 @@ export const createShipmentValidations = () => [
     .bail()
     
     .custom(async (value, { req }) => {
-      let [driver] = await query("SELECT d.IDDriver AS driverId, IF(json_extract(doc.Document, '$.title') = 'Licencia de conducir', true, false) AS isExistDriverLicense, json_extract(doc.Document, '$.expiration') AS documentExpirationDate FROM driver AS d LEFT JOIN driver_document AS doc ON d.IDDriver = doc.IDDriver WHERE d.IdentificationCode = ?", value)
+      let [driver] = await query("SELECT d.IDDriver AS driverId, IDDriverStatus as idDriverStatus, IF(json_extract(doc.Document, '$.title') = 'Licencia de conducir', true, false) AS isExistDriverLicense, json_extract(doc.Document, '$.expiration') AS documentExpirationDate FROM driver AS d LEFT JOIN driver_document AS doc ON d.IDDriver = doc.IDDriver WHERE d.IdentificationCode = ?", value)
 
       if (!driver) {
         return Promise.reject("El conductor seleccionado no existe.");
+      }
+
+      if (driver.idDriverStatus !== 1) {
+        return Promise.reject("El conductor no se encuentra disponible.")
       }
 
       driver.documentExpirationDate = JSON.parse(driver.documentExpirationDate)
@@ -54,10 +58,14 @@ export const createShipmentValidations = () => [
         return Promise.reject("Debes seleccionar un vehículo para continuar.")
       }
 
-      const [vehicle] = await query("SELECT v.IDVehicle AS vehicleId, IF(json_extract(doc.Document, '$.title') = 'Certificado de circulación', true, false) AS isExistVehicleCertified FROM vehicle AS v LEFT JOIN vehicle_document AS doc  ON v.IDVehicle = doc.IDVehicle WHERE v.LicenseNumber= ?", req.body.vehicleLicenseNumber) 
+      const [vehicle] = await query("SELECT v.IDVehicle AS vehicleId, IDVehicleStatus as idVehicleStatus, IF(json_extract(doc.Document, '$.title') = 'Certificado de circulación', true, false) AS isExistVehicleCertified FROM vehicle AS v LEFT JOIN vehicle_document AS doc  ON v.IDVehicle = doc.IDVehicle WHERE v.LicenseNumber= ?", req.body.vehicleLicenseNumber) 
 
       if (!vehicle) {
         return Promise.reject("El conductor seleccionado no existe.");
+      }
+
+      if (vehicle.idVehicleStatus !== 1) {
+        return Promise.reject("El vehículo no se encuentra disponible.")
       }
 
       if (!vehicle.isExistVehicleCertified) {

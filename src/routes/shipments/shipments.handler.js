@@ -1,6 +1,6 @@
 import express from "express";
 import { validate, createShipmentValidations } from "./validations"
-import { getDrivers, getAssigmentVehicles, getDriverInfoByIdentificationCode, getVehicleIdByLicenseNumber, createShipment, sendEmail } from "./shipments";
+import { getDrivers, getAssigmentVehicles, getDriverInfoByIdentificationCode, getVehicleIdByLicenseNumber, createShipment, updateDriverStatusById, sendEmail } from "./shipments";
 import { successResponse, responseCodes, errorResponse } from "../../responses";
 
 const router = express();
@@ -37,6 +37,12 @@ router.post("/", createShipmentValidations(), validate, async (req, res) => {
   const insertShipment = await createShipment(data)
 
   if (!insertShipment) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar registrar el envío. Intenta más tarde"))
+  }
+
+  const updateDriverStatus = await updateDriverStatusById(2, driver.driverId)
+
+  if (!updateDriverStatus) {
     return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar registrar el envío. Intenta más tarde"))
   }
 

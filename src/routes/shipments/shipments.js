@@ -12,6 +12,16 @@ export const createShipment = async (data) => {
   }
 }
 
+export const updateDriverStatusById = async (status, driverId) => {
+  try {
+    await query("UPDATE driver SET IDDriverStatus = ? WHERE IDDriver = ?", [status, driverId])
+    
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 export const getDriverInfoByIdentificationCode = async (identificationCode) => {
   try {
     const result = await query("SELECT IDDriver as driverId, Name as driverName, Lastname as driverLastname, Email as driverEmail FROM driver WHERE IdentificationCode = ?", identificationCode)
