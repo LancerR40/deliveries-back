@@ -1,8 +1,13 @@
 import express from "express";
+import { validate, createShipmentValidations } from "./validations"
 import { getDrivers, getAssigmentVehicles } from "./shipments";
 import { successResponse, errorResponse, responseCodes } from "../../responses";
 
 const router = express();
+
+router.post("/", createShipmentValidations(), validate, (req, res) => {
+  res.json(req.body)
+})
 
 router.post("/drivers", async (req, res) => {
   const result = await getDrivers(req.body?.field);
