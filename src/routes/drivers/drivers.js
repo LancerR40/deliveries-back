@@ -1,4 +1,18 @@
 import query from "../../database";
+import jsonwebtoken from "jsonwebtoken"
+
+export const isAuth = (req, res, next) => {
+  const token = req.headers["x-authorization-token"]
+
+  try {
+    const payload = jsonwebtoken.verify(token, config.TOKEN_KEY);
+    req.user = payload;
+
+    next()
+  } catch (error) {
+    res.status(responseCodes.HTTP_401_UNAUTHORIZED).json(errorResponse("No estas autorizado."));
+  }
+}
 
 export const createDriver = async (driver) => {
   try {

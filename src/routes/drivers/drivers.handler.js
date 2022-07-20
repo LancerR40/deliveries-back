@@ -2,13 +2,8 @@ import express from "express";
 import bcrypt from "bcrypt";
 import moment from "moment";
 
-import {
-  validate,
-  createDriverValidations,
-  createDocumentValidations,
-  driversByQueriesValidations,
-} from "./validations";
-import { createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries } from "./drivers";
+import { validate, createDriverValidations, createDocumentValidations, driversByQueriesValidations } from "./validations";
+import { isAuth, createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries } from "./drivers";
 
 import { uploadImage } from "../../utils/cloudinary";
 import { base64Image } from "../../utils/image";
@@ -18,7 +13,7 @@ import { DRIVER_DOCUMENTS } from "../../constants";
 
 const router = express.Router();
 
-router.post("/", driversByQueriesValidations(), validate, async (req, res) => {
+router.post("/", isAuth, driversByQueriesValidations(), validate, async (req, res) => {
   const result = await getDriversByQueries(req.body);
 
   if (!result) {
@@ -33,7 +28,7 @@ router.post("/", driversByQueriesValidations(), validate, async (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse(result));
 });
 
-router.post("/create", createDriverValidations(), validate, async (req, res) => {
+router.post("/create", isAuth, createDriverValidations(), validate, async (req, res) => {
   const { name, lastname, identificationCode, gender, dateOfBirth, email, password, document } = req.body;
   const { photo } = req.files;
   const encryptedPassword = await bcrypt.hash(password, 8);
@@ -94,7 +89,7 @@ router.post("/create", createDriverValidations(), validate, async (req, res) => 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
 });
 
-router.post("/documents", createDocumentValidations(), validate, async (req, res) => {
+router.post("/documents", isAuth, createDocumentValidations(), validate, async (req, res) => {
   const { title, name, lastname, identificationCode, gender, expedition, expiration, type } = req.body.document;
 
   const reorganizedDocument = JSON.stringify({
@@ -124,7 +119,7 @@ router.post("/documents", createDocumentValidations(), validate, async (req, res
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
 });
 
-router.get("/documents", (req, res) => {
+router.get("/documents", isAuth, (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse(DRIVER_DOCUMENTS));
 });
 

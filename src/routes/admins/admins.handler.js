@@ -17,7 +17,7 @@ router.get("/data", isAuth, async (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse(admin));
 });
 
-router.post("/create", createValidations(), validate, async (req, res) => {
+router.post("/create", isAuth, createValidations(), validate, async (req, res) => {
   const { name, lastname, identificationCode, gender, dateOfBirth, email, password } = req.body;
   const { photo } = req.files;
 
