@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import moment from "moment";
 
 import { validate, createDriverValidations, createDocumentValidations, driversByQueriesValidations } from "./validations";
-import { isAuth, createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries } from "./drivers";
+import { isAuth, createDriver, createDriverDocument, getDriverIdByIdentificationCode, getDriversByQueries, getDriverData } from "./drivers";
 
 import { uploadImage } from "../../utils/cloudinary";
 import { base64Image } from "../../utils/image";
@@ -118,6 +118,20 @@ router.post("/documents", isAuth, createDocumentValidations(), validate, async (
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Registro éxitoso." }));
 });
+
+router.get("/data", isAuth, async (req, res) => {
+  const { id } = req.user
+  const result = await getDriverData(id)
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Hubo un problema al obtener los datos del perfil. Por favor, intenta más tarde."));
+  }
+
+  result.driverDateOfBirth = moment(result.driverDateOfBirth).format("DD-MM-YYYY")
+  console.log(result.driverDateOfBirth)
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(result))
+})
 
 router.get("/documents", isAuth, (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse(DRIVER_DOCUMENTS));

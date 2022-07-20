@@ -1,5 +1,7 @@
 import query from "../../database";
 import jsonwebtoken from "jsonwebtoken"
+import config from "../../config";
+import { responseCodes, errorResponse } from "../../responses"
 
 export const isAuth = (req, res, next) => {
   const token = req.headers["x-authorization-token"]
@@ -10,6 +12,7 @@ export const isAuth = (req, res, next) => {
 
     next()
   } catch (error) {
+    console.log(error)
     res.status(responseCodes.HTTP_401_UNAUTHORIZED).json(errorResponse("No estas autorizado."));
   }
 }
@@ -46,6 +49,15 @@ export const updateDriverStatus = async (status, driverId) => {
     return false;
   }
 };
+
+export const getDriverData = async (driverId) => {
+  try {
+    const result = await query("SELECT Name as driverName, Lastname as driverLastname, IdentificationCode as driverIdentificationCode, Photo as driverPhoto, DateOfBirth as driverDateOfBirth, Email as driverEmail FROM driver WHERE IDDriver = ?", driverId)
+    return result[0]
+  } catch (error) {
+    return false
+  }
+}
 
 export const getDriverIdByIdentificationCode = async (code) => {
   try {
