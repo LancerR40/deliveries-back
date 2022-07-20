@@ -1,11 +1,13 @@
 import express from "express";
+import moment from "moment";
+
 import { validate, createShipmentValidations } from "./validations"
-import { getDrivers, getAssigmentVehicles, getDriverInfoByIdentificationCode, getVehicleIdByLicenseNumber, createShipment, updateDriverStatusById, sendEmail } from "./shipments";
+import { isAuth, insertDriverPosition, updateShipmentStatus, getShipmentsByDriver, getDrivers, getAssigmentVehicles, getDriverInfoByIdentificationCode, getVehicleIdByLicenseNumber, createShipment, updateDriverStatusById, sendEmail } from "./shipments";
 import { successResponse, responseCodes, errorResponse } from "../../responses";
 
 const router = express();
 
-router.post("/", createShipmentValidations(), validate, async (req, res) => {
+router.post("/create", isAuth, createShipmentValidations(), validate, async (req, res) => {
   const { driverIdentificationCode, vehicleLicenseNumber, products, shipment } = req.body
 
   const driver = await getDriverInfoByIdentificationCode(driverIdentificationCode)
@@ -54,7 +56,43 @@ router.post("/", createShipmentValidations(), validate, async (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Envío registrado y activado con éxito" }))
 })
 
-router.post("/drivers", async (req, res) => {
+router.get("/assigned", isAuth, async (req, res) => {
+  const { id } = req.user
+  const shipments = await getShipmentsByDriver(id)
+
+  if (!shipments) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar obtener  el envío. Intenta más tarde"))
+  }
+
+  if (!shipments.length) {
+    return res.status(responseCodes.HTTP_200_OK).json(successResponse({ all: [], active: null }))
+  }
+
+  const data = { all: [], active: null }
+
+  data.all = shipments.map((shipment) => {
+    shipment.shipmentCreatedAt = moment(shipment.shipmentCreatedAt).local().format("lll")
+    shipment.shipmentDescription = JSON.parse(shipment.shipmentDescription)
+
+    
+    if (!data.active && shipment.idShipmentStatus == 2) {
+      data.active = shipment
+    }
+
+    return shipment
+  })
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(data))
+})
+
+router.post("/tracking", async (req, res) => {
+  const { shipmentId, driverPosition: { latitude, longitude } } = req.body
+
+  await insertDriverPosition(shipmentId, latitude, longitude)
+  res.end()
+});
+
+router.post("/drivers", isAuth, async (req, res) => {
   const result = await getDrivers(req.body?.field);
 
   if (!result) {
@@ -64,7 +102,7 @@ router.post("/drivers", async (req, res) => {
   return res.status(responseCodes.HTTP_200_OK).json(successResponse(result));
 });
 
-router.post("/vehicles", async (req, res) => {
+router.post("/vehicles", isAuth, async (req, res) => {
   const result = await getAssigmentVehicles(req.body?.field);
 
   if (!result) {
@@ -73,5 +111,39 @@ router.post("/vehicles", async (req, res) => {
 
   return res.status(responseCodes.HTTP_200_OK).json(successResponse(result));
 });
+
+router.patch("/completed", isAuth, async (req, res) => {
+  const { id } = req.user;
+  let result = await updateShipmentStatus(1, req.body.shipmentId)
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar actualizar el envío a completado. Intenta más tarde"))
+  }
+
+  result = await updateDriverStatusById(1, id)
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar actualizar el envío a completado. Intenta más tarde"))
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Envío completado y registrado con éxito." }))
+})
+
+router.patch("/canceled", isAuth, async (req, res) => {
+  const { id } = req.user;
+  let result = await updateShipmentStatus(3, req.body.shipmentId)
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar actualizar el envío a cancelado. Intenta más tarde."))
+  }
+
+  result = await updateDriverStatusById(1, id)
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar actualizar el envío a cancelado. Intenta más tarde."))
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "El envío ha sido cancelado con éxito." }))
+})
 
 export default router;

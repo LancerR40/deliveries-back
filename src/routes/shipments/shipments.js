@@ -1,6 +1,21 @@
 import query from "../../database";
 import nodemailer from "nodemailer"
 import config from "../../config";
+import jsonwebtoken from "jsonwebtoken"
+import { responseCodes, errorResponse } from "../../responses"
+
+export const isAuth = (req, res, next) => {
+  const token = req.headers["x-authorization-token"]
+
+  try {
+    const payload = jsonwebtoken.verify(token, config.TOKEN_KEY);
+    req.user = payload;
+
+    next()
+  } catch (error) {
+    res.status(responseCodes.HTTP_401_UNAUTHORIZED).json(errorResponse("No estas autorizado."));
+  }
+}
 
 export const createShipment = async (data) => {
   try {
@@ -12,11 +27,39 @@ export const createShipment = async (data) => {
   }
 }
 
+export const insertDriverPosition = async (shipmentId, latitude, longitude) => {
+  const data = { IDShipment: shipmentId, Latitude: latitude, Longitude: longitude }
+
+  try {
+    await query("INSERT INTO shipment_coordinates SET ?", data)
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 export const updateDriverStatusById = async (status, driverId) => {
   try {
     await query("UPDATE driver SET IDDriverStatus = ? WHERE IDDriver = ?", [status, driverId])
     
     return true
+  } catch (error) {
+    return false
+  }
+}
+
+export const updateShipmentStatus = async (status, shipmentId) => {
+  try {
+    await query("UPDATE shipment SET IDShipmentStatus = ? WHERE IDShipment = ?", [status, shipmentId])
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+export const getShipmentsByDriver = async (driverId) => {
+  try {
+    return await query("SELECT s.IDShipment AS idShipment, s.Description AS shipmentDescription, ss.IDShipmentStatus AS idShipmentStatus, ss.StatusName as shipmentStatusName, s.CreatedAt AS shipmentCreatedAt FROM shipment AS s INNER JOIN shipment_status ss ON s.IDShipmentStatus = ss.IDShipmentStatus WHERE IDDriver = ?", driverId)
   } catch (error) {
     return false
   }
