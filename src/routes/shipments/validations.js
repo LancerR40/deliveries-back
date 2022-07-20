@@ -61,7 +61,7 @@ export const createShipmentValidations = () => [
       const [vehicle] = await query("SELECT v.IDVehicle AS vehicleId, IDVehicleStatus as idVehicleStatus, IF(json_extract(doc.Document, '$.title') = 'Certificado de circulación', true, false) AS isExistVehicleCertified FROM vehicle AS v LEFT JOIN vehicle_document AS doc  ON v.IDVehicle = doc.IDVehicle WHERE v.LicenseNumber= ?", req.body.vehicleLicenseNumber) 
 
       if (!vehicle) {
-        return Promise.reject("El conductor seleccionado no existe.");
+        return Promise.reject("El vehículo seleccionado no existe.");
       }
 
       if (vehicle.idVehicleStatus !== 1) {
