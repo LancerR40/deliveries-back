@@ -12,7 +12,6 @@ export const isAuth = (req, res, next) => {
 
     next()
   } catch (error) {
-    console.log(error)
     res.status(responseCodes.HTTP_401_UNAUTHORIZED).json(errorResponse("No estas autorizado."));
   }
 }
