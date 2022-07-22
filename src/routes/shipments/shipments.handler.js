@@ -164,11 +164,13 @@ router.post("/tracking/coordinates", isAuth, async (req, res) => {
 })
 
 router.get("/active", isAuth, async (req, res) => {
-  const result = await getActiveShipments()
+  let result = await getActiveShipments()
 
   if (!result) {
     return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar obtener los envíos activos. Por favor, intenta más tarde."))
   }
+
+  result = result.map(shipment => ({ ...shipment, destinationCoordinates: JSON.parse(shipment.destinationCoordinates) }))
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse(result))
 })

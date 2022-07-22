@@ -116,7 +116,7 @@ export const getActiveShipments = async () => {
   try {
     const shipmentsInProgressId = 2
     
-    return await query("SELECT s.IDShipment as shipmentId, d.IDDriver as driverId, d.Name as driverName, d.Lastname as driverLastname, d.IdentificationCode as driverIdentificationCode, d.Photo as driverPhoto, v.Model as vehicleModel, v.Brand as vehicleBrand, v.LicenseNumber as vehicleLicenseNumber FROM shipment as s INNER JOIN driver as d ON s.IDDriver = d.IDDriver  INNER JOIN vehicle as v  ON s.IDVehicle = v.IDVehicle WHERE s.IDShipmentStatus = ?", shipmentsInProgressId)
+    return await query("SELECT s.IDShipment as shipmentId, d.IDDriver as driverId, d.Name as driverName, d.Lastname as driverLastname, d.IdentificationCode as driverIdentificationCode, d.Photo as driverPhoto, v.Model as vehicleModel, v.Brand as vehicleBrand, v.LicenseNumber as vehicleLicenseNumber, json_extract(s.Description, '$.destination') as destinationCoordinates FROM shipment as s INNER JOIN driver as d ON s.IDDriver = d.IDDriver  INNER JOIN vehicle as v  ON s.IDVehicle = v.IDVehicle WHERE s.IDShipmentStatus = ?", shipmentsInProgressId)
   } catch (error) {
     return false
   }
