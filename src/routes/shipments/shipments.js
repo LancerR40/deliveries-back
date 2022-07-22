@@ -57,6 +57,14 @@ export const updateShipmentStatus = async (status, shipmentId) => {
   }
 }
 
+export const getTrackingCoordinatesByShipmentId = async (shipmentId) => {
+  try {
+    return await query("SELECT Latitude as driverLatitude, Longitude as driverLongitude FROM shipment_coordinates WHERE IDShipment = ? ORDER BY IDShipmentCoordinates DESC LIMIT 1", shipmentId)
+  } catch (error) {
+    return false
+  }
+}
+
 export const getShipmentsByDriver = async (driverId) => {
   try {
     return await query("SELECT s.IDShipment AS idShipment, s.Description AS shipmentDescription, ss.IDShipmentStatus AS idShipmentStatus, ss.StatusName as shipmentStatusName, s.CreatedAt AS shipmentCreatedAt FROM shipment AS s INNER JOIN shipment_status ss ON s.IDShipmentStatus = ss.IDShipmentStatus WHERE IDDriver = ?", driverId)
@@ -99,6 +107,16 @@ export const getAssigmentVehicles = async (field = "") => {
   try {
     const result = await query("SELECT v.Model as vehicleModel, v.LicenseNumber as vehicleLicenseNumber FROM driver as d LEFT JOIN assigned_vehicle as av ON av.IDDriver = d.IDDriver LEFT JOIN vehicle as v ON av.IDVehicle = v.IDVehicle WHERE d.IdentificationCode = ?", field)
     return result
+  } catch (error) {
+    return false
+  }
+}
+
+export const getActiveShipments = async () => {
+  try {
+    const shipmentsInProgressId = 2
+    
+    return await query("SELECT s.IDShipment as shipmentId, d.IDDriver as driverId, d.Name as driverName, d.Lastname as driverLastname, d.IdentificationCode as driverIdentificationCode, d.Photo as driverPhoto, v.Model as vehicleModel, v.Brand as vehicleBrand, v.LicenseNumber as vehicleLicenseNumber FROM shipment as s INNER JOIN driver as d ON s.IDDriver = d.IDDriver  INNER JOIN vehicle as v  ON s.IDVehicle = v.IDVehicle WHERE s.IDShipmentStatus = ?", shipmentsInProgressId)
   } catch (error) {
     return false
   }

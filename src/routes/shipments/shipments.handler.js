@@ -2,7 +2,7 @@ import express from "express";
 import moment from "moment";
 
 import { validate, createShipmentValidations } from "./validations"
-import { isAuth, insertDriverPosition, updateShipmentStatus, getShipmentsByDriver, getDrivers, getAssigmentVehicles, getDriverInfoByIdentificationCode, getVehicleIdByLicenseNumber, createShipment, updateDriverStatusById, sendEmail } from "./shipments";
+import { isAuth, getTrackingCoordinatesByShipmentId, getActiveShipments, insertDriverPosition, updateShipmentStatus, getShipmentsByDriver, getDrivers, getAssigmentVehicles, getDriverInfoByIdentificationCode, getVehicleIdByLicenseNumber, createShipment, updateDriverStatusById, sendEmail } from "./shipments";
 import { successResponse, responseCodes, errorResponse } from "../../responses";
 
 const router = express();
@@ -85,13 +85,6 @@ router.get("/assigned", isAuth, async (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse(data))
 })
 
-router.post("/tracking", async (req, res) => {
-  const { shipmentId, driverPosition: { latitude, longitude } } = req.body
-
-  await insertDriverPosition(shipmentId, latitude, longitude)
-  res.end()
-});
-
 router.post("/drivers", isAuth, async (req, res) => {
   const result = await getDrivers(req.body?.field);
 
@@ -144,6 +137,40 @@ router.patch("/canceled", isAuth, async (req, res) => {
   }
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "El envío ha sido cancelado con éxito." }))
+})
+
+/* TRACKER ENDPOINTS */
+router.post("/tracking", async (req, res) => {
+  const { shipmentId, driverPosition: { latitude, longitude } } = req.body
+
+  await insertDriverPosition(shipmentId, latitude, longitude)
+  res.end()
+});
+
+router.post("/tracking/coordinates", isAuth, async (req, res) => {
+  const { shipmentId } = req.body
+
+  if (!shipmentId) {
+    return res.end()
+  }
+  
+  const result = await getTrackingCoordinatesByShipmentId(shipmentId)
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrió un error al obtener la última ubicación del conductor. Por favor, intenta más tarde."))
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(result))
+})
+
+router.get("/active", isAuth, async (req, res) => {
+  const result = await getActiveShipments()
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar obtener los envíos activos. Por favor, intenta más tarde."))
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(result))
 })
 
 export default router;
