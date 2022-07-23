@@ -65,6 +65,14 @@ export const getTrackingCoordinatesByShipmentId = async (shipmentId) => {
   }
 }
 
+export const getAllTrackingCoordinates = async () => {
+  try {
+    return await query("SELECT d.Name as driverName, d.Lastname as driverLastname, d.IdentificationCode as driverIdentificationCode, d.Photo as driverPhoto, sc.Latitude as driverLatitude, sc.Longitude as driverLongitude FROM shipment as s INNER JOIN driver as d ON s.IDDriver = d.IDDriver INNER JOIN shipment_coordinates as sc ON sc.IDShipment = s.IDShipment WHERE s.IDShipmentStatus = 2 ORDER BY sc.IDShipmentCoordinates DESC LIMIT 1")
+  } catch (error) {
+    return false
+  }
+}
+
 export const getShipmentsByDriver = async (driverId) => {
   try {
     return await query("SELECT s.IDShipment AS idShipment, s.Description AS shipmentDescription, ss.IDShipmentStatus AS idShipmentStatus, ss.StatusName as shipmentStatusName, s.CreatedAt AS shipmentCreatedAt FROM shipment AS s INNER JOIN shipment_status ss ON s.IDShipmentStatus = ss.IDShipmentStatus WHERE IDDriver = ?", driverId)

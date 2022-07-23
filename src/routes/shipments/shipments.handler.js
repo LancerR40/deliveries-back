@@ -2,7 +2,7 @@ import express from "express";
 import moment from "moment";
 
 import { validate, createShipmentValidations } from "./validations"
-import { isAuth, getTrackingCoordinatesByShipmentId, getActiveShipments, insertDriverPosition, updateShipmentStatus, getShipmentsByDriver, getDrivers, getAssigmentVehicles, getDriverInfoByIdentificationCode, getVehicleIdByLicenseNumber, createShipment, updateDriverStatusById, sendEmail } from "./shipments";
+import { isAuth, getTrackingCoordinatesByShipmentId, getActiveShipments, getAllTrackingCoordinates, insertDriverPosition, updateShipmentStatus, getShipmentsByDriver, getDrivers, getAssigmentVehicles, getDriverInfoByIdentificationCode, getVehicleIdByLicenseNumber, createShipment, updateDriverStatusById, sendEmail } from "./shipments";
 import { successResponse, responseCodes, errorResponse } from "../../responses";
 
 const router = express();
@@ -158,6 +158,16 @@ router.post("/tracking/coordinates", isAuth, async (req, res) => {
 
   if (!result) {
     return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrió un error al obtener la última ubicación del conductor. Por favor, intenta más tarde."))
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse(result))
+})
+
+router.get("/tracking/coordinates/all", async (req, res) => {
+  const result = await getAllTrackingCoordinates()
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error al intentar obtener los envíos activos. Por favor, intenta más tarde."))
   }
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse(result))
