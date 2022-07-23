@@ -77,7 +77,7 @@ export const createAssignment = async (vehicleId, driverId) => {
   }
 };
 
-const updateVehicleStatus = async (status, vehicleId) => {
+export const updateVehicleStatus = async (status, vehicleId) => {
   try {
     await query("UPDATE vehicle SET IDVehicleStatus = ? WHERE IDVehicle = ?", [status, vehicleId]);
 
@@ -86,6 +86,15 @@ const updateVehicleStatus = async (status, vehicleId) => {
     return error;
   }
 };
+
+export const deleteAssignment = async (assignmentId) => {
+  try {
+    await query("DELETE FROM assigned_vehicle WHERE IDAssignedVehicle = ?", assignmentId)
+    return true
+  } catch (error) {
+    return error
+  }
+}
 
 export const getVehiclesByQueries = async (payload) => {
   try {
@@ -162,3 +171,11 @@ export const getVehicleByLicenseNumber = async (licenseNumber) => {
     return false;
   }
 };
+
+export const getAssigments = async () => {
+  try {
+    return await query("SELECT d.Name as driverName, d.Lastname as driverLastname, d.IdentificationCode as driverIdentificationCode, d.Photo as driverPhoto, v.LicenseNumber as vehicleLicenseNumber, v.Brand as vehicleBrand, v.Model as vehicleModel, av.IDAssignedVehicle as assignedVehicleId FROM assigned_vehicle as av INNER JOIN driver as d ON av.IDDriver = d.IDDriver INNER JOIN vehicle as v ON av.IDVehicle = v.IDVehicle")
+  } catch (error) {
+    return false
+  }
+}

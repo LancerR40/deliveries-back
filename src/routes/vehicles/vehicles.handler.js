@@ -1,7 +1,7 @@
 import express from "express";
 import moment from "moment";
 
-import { isAuth, createVehicle, createVehicleDocument, createCompanyVehicle, createDriverVehicle, createAssignment, getVehiclesByQueries, getSuperAdmin, getDriverByIdentificationCode, getVehicleByLicenseNumber } from "./vehicles";
+import { isAuth, createVehicle, createVehicleDocument, createCompanyVehicle, createDriverVehicle, createAssignment, getVehiclesByQueries, getSuperAdmin, getDriverByIdentificationCode, getVehicleByLicenseNumber, getAssigments, deleteAssignment } from "./vehicles";
 import { validate, createVehicleValidations, createAssignmentValidations, vehiclesByQueriesValidations } from "./validations";
 
 import { successResponse, responseCodes, errorResponse } from "../../responses";
@@ -100,6 +100,32 @@ router.post("/assignment", isAuth, createAssignmentValidations(), validate, asyn
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "Asignación éxitosa." }));
 });
+
+router.get("/assignment", isAuth, async (req, res) => {
+  const result = await getAssigments()
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error. Por favor, intenta más tarde."));
+  }
+
+ res.status(responseCodes.HTTP_200_OK).json(successResponse(result))
+})
+
+router.delete("/assignment/:assignmentId", async (req, res) => {
+  const { assignmentId } = req.params
+
+  if (!assignmentId) {
+    res.end()
+  }
+  
+  const result = await deleteAssignment(assignmentId)
+
+  if (!result) {
+    return res.status(responseCodes.HTTP_200_OK).json(errorResponse("Ocurrio un error. Por favor, intenta más tarde."));
+  }
+
+  res.status(responseCodes.HTTP_200_OK).json(successResponse({ message: "La asignación ha sido eliminada con éxito." }))
+})
 
 router.get("/brands", isAuth, (req, res) => {
   res.status(responseCodes.HTTP_200_OK).json(successResponse(VEHICLE_BRANDS));
