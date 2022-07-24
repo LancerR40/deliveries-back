@@ -67,7 +67,20 @@ export const getTrackingCoordinatesByShipmentId = async (shipmentId) => {
 
 export const getAllTrackingCoordinates = async () => {
   try {
-    return await query("SELECT d.Name as driverName, d.Lastname as driverLastname, d.IdentificationCode as driverIdentificationCode, d.Photo as driverPhoto, sc.Latitude as driverLatitude, sc.Longitude as driverLongitude FROM shipment as s INNER JOIN driver as d ON s.IDDriver = d.IDDriver INNER JOIN shipment_coordinates as sc ON sc.IDShipment = s.IDShipment WHERE s.IDShipmentStatus = 2 ORDER BY sc.IDShipmentCoordinates DESC LIMIT 1")
+    let result = await query("SELECT s.IDShipment as shipmentId, d.Name as driverName, d.Lastname as driverLastname, d.IdentificationCode as driverIdentificationCode FROM shipment AS s INNER JOIN driver AS d ON s.IDDriver = d.IDDriver WHERE s.IDShipmentStatus = 2")
+
+    const promises = result.map(async shipment => {
+      const coordinates = await query("SELECT Latitude AS driverLatitude, Longitude AS driverLongitude FROM shipment_coordinates WHERE IDShipment = ? ORDER BY (IDShipmentCoordinates) DESC LIMIT 1", shipment.shipmentId)
+      return {
+        driverName: shipment.driverName,
+        driverLastname: shipment.driverLastname,
+        driverIdentificationCode: shipment.driverIdentificationCode,
+        driverLatitude: coordinates[0].driverLatitude,
+        driverLongitude: coordinates[0].driverLongitude,
+      }
+    })
+
+    return await Promise.all(promises)
   } catch (error) {
     return false
   }
