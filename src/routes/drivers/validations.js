@@ -255,8 +255,12 @@ export const createDocumentValidations = () => [
           return Promise.reject("La fecha de expedición del documento es incorrecta.");
         }
 
-        if (expirationMoment.isSameOrBefore(expeditionMoment) || expirationMoment.isSameOrBefore(currentMoment)) {
+        if (expirationMoment.isSameOrBefore(expeditionMoment)) {
           return Promise.reject("La fecha de expiración indica que el documento ya no es válido.");
+        }
+
+        if (expirationMoment.isSameOrBefore(currentMoment)) {
+          return Promise.reject("La fecha de expiración indica que el documento ya no es válido o que vence el día de hoy.");
         }
 
         const allowedTypes = ["A", "B", "C"];
