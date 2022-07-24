@@ -164,7 +164,7 @@ export const createDriverValidations = () => [
       return Promise.reject("El documento seleccionado es incorrecto.");
     }
 
-    document = JSON.parse(document);
+    document = JSON.parse(document)
 
     if (!document.title || !allowedDocuments.includes(document.title)) {
       return Promise.reject("El documento seleccionado es incorrecto.");
@@ -196,6 +196,10 @@ export const createDriverValidations = () => [
 
     if (expirationMoment.isSameOrBefore(expeditionMoment)) {
       return Promise.reject("La fecha de expiración indica que el documento ya no es válido.");
+    }
+
+    if (expirationMoment.isSameOrBefore(currentMoment)) {
+      return Promise.reject("La fecha de expiración indica que el documento ya no es válido o que vence el día de hoy.");
     }
 
     const allowedTypes = ["A", "B", "C"];
