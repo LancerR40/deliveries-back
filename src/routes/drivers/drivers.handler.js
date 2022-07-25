@@ -39,7 +39,7 @@ router.post("/create", isAuth, createDriverValidations(), validate, async (req, 
   if (!cloudResponse) {
     return res
       .status(responseCodes.HTTP_200_OK)
-      .json(errorResponse("Hubo un problema en el registro del conductor, intenta de nuevo 1."));
+      .json(errorResponse("Hubo un problema en el registro del conductor, intenta de nuevo."));
   }
 
   const result = await createDriver({
@@ -57,7 +57,7 @@ router.post("/create", isAuth, createDriverValidations(), validate, async (req, 
   if (!result) {
     return res
       .status(responseCodes.HTTP_200_OK)
-      .json(errorResponse("Hubo un problema en el registro del conductor, intenta de nuevo 2."));
+      .json(errorResponse("Hubo un problema en el registro del conductor, intenta de nuevo."));
   }
 
   if (document) {
@@ -82,7 +82,7 @@ router.post("/create", isAuth, createDriverValidations(), validate, async (req, 
     if (!driverDocumentResult) {
       return res
         .status(responseCodes.HTTP_200_OK)
-        .json(errorResponse("Hubo un problema en el registro del documento, intenta de nuevo 3."));
+        .json(errorResponse("Hubo un problema en el registro del documento, intenta de nuevo."));
     }
   }
 
@@ -128,7 +128,6 @@ router.get("/data", isAuth, async (req, res) => {
   }
 
   result.driverDateOfBirth = moment(result.driverDateOfBirth).format("DD-MM-YYYY")
-  console.log(result.driverDateOfBirth)
 
   res.status(responseCodes.HTTP_200_OK).json(successResponse(result))
 })
