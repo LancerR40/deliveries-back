@@ -6,7 +6,7 @@ You must have:
 
 * Installed [node.js](https://nodejs.org/en/) on your machine
 * You should have a [cloudinary](https://cloudinary.com/)
-* You have some email account for the sending emails
+* You have some email account for the sending mails
 
 ## Clone project
 
