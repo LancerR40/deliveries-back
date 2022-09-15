@@ -1,5 +1,5 @@
 # deliveries-back
-Deliveries software server
+Deliveries software API REST server
 
 ## Requirements
 You must have:
