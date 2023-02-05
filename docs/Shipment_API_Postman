@@ -1,0 +1,887 @@
+{
+	"info": {
+		"_postman_id": "955bc323-1753-4732-9145-d2f73f08df92",
+		"name": "Shipment API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13490667"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Admin Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "johnrauch@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/auth/admins/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"admins",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Driver Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"johnmarshall@gmail.com\",\r\n    \"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/auth/drivers/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"drivers",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Session",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Authorization-Token",
+								"value": "token",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/auth/admins/session",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"admins",
+								"session"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Driver Session",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-authorization-token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjU3MDczNTE1LCJleHAiOjE2NTcxNTk5MTV9.iAA5D_-SQoFFXI6TWwb384s7FRPr-nrvS2McfCsDsw4",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/auth/drivers/session",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"drivers",
+								"session"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "John",
+									"type": "text"
+								},
+								{
+									"key": "lastname",
+									"value": "Rauch",
+									"type": "text"
+								},
+								{
+									"key": "identificationCode",
+									"value": "26289754",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "Masculino",
+									"type": "text"
+								},
+								{
+									"key": "photo",
+									"type": "file",
+									"src": "/C:/Users/TTruc/Desktop/people face images/13t8uYk.png"
+								},
+								{
+									"key": "dateOfBirth",
+									"value": "1995-07-10",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "johnrauch@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/admins/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admins",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Access-Token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6MSwiaWF0IjoxNjU3MDUxMjcwLCJleHAiOjE2NTcxMzc2NzB9.j4E5R6U6Qlc8c27nleizGsxFEO3Tyy6Lwzn6lhNOwXU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/admins/data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"admins",
+								"data"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Driver",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Ronald",
+									"type": "text"
+								},
+								{
+									"key": "lastname",
+									"value": "Abu Saleh",
+									"type": "text"
+								},
+								{
+									"key": "identificationCode",
+									"value": "26275576",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "Masculino",
+									"type": "text"
+								},
+								{
+									"key": "photo",
+									"type": "file",
+									"src": "/C:/Users/TTruc/Pictures/Camera Roll/WIN_20220707_09_34_07_Pro.jpg"
+								},
+								{
+									"key": "dateOfBirth",
+									"value": "1998-07-05",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "lancerrnld@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456",
+									"type": "text"
+								},
+								{
+									"key": "document",
+									"value": "",
+									"contentType": "application/json",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/drivers/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"drivers",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Drivers",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"search\": {\r\n        \"page\": \"1\",\r\n        \"field\": \"\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/drivers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"drivers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Documents",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"document\": {\r\n        \"title\": \"Licencia de conducir\",\r\n        \"name\": \"Ronald\",\r\n        \"lastname\": \"Abu Saleh\",\r\n        \"identificationCode\": \"26275576\",\r\n        \"gender\": \"Masculino\",\r\n        \"expedition\": \"2022-06-07\",\r\n        \"expiration\": \"2024-02-07\",\r\n        \"type\": \"A\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/drivers/documents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"drivers",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/drivers/documents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"drivers",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-authorization-token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiaWF0IjoxNjU4MzUxMjI3LCJleHAiOjE2NTg0Mzc2Mjd9.Eksg173BX9Mwe3-xrC1SSrMyOyXSu7LSjsa7dKvgQhE",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/drivers/data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"drivers",
+								"data"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Vehicle",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"model\": \"X-10-PRO\",\r\n    \"brand\": \"Tesla\",\r\n    \"colors\": [\r\n        \"Azul\",\r\n        \"Rojo\"\r\n    ],\r\n    \"type\": \"Auto Privado\",\r\n    \"licenseNumber\": \"A2973B7\",\r\n    \"tiresNumber\": 2,\r\n    \"document\": {\r\n        \"title\": \"Certificado de circulación\",\r\n        \"name\": \"Ronald\",\r\n        \"lastname\": \"Abu Saleh\",\r\n        \"identificationCode\": \"26275576\",\r\n        \"maximumLoadMass\": 10,\r\n        \"expedition\": \"2022-01-01\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/vehicles/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"vehicles",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Document",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"document\": {\r\n        \"title\": \"Certificado de circulación\",\r\n        \"name\": \"\",\r\n        \"lastname\": \"\",\r\n        \"identificationCode\": \"\",\r\n        \"licenseNumber\": \"A256981\",\r\n        \"vehicleBrand\": \"Tesla\",\r\n        \"vehicleType\": \"Ferrari\",\r\n        \"vehicleMaximumLoadMass\": \"40\",\r\n        \"expedition\": \"2005-09-10\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/vehicles/documents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"vehicles",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vehicles",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"search\": {\r\n        \"page\": \"1\",\r\n        \"field\": \"\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/vehicles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"vehicles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assignment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"driverIdentificationCode\": \"26275576\",\r\n    \"vehicleLicenseNumber\": \"A2973B7\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/vehicles/assignment",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"vehicles",
+								"assignment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Brands",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/vehicles/brands",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"vehicles",
+								"brands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/vehicles/documents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"vehicles",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assignments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/vehicles/assignment",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"vehicles",
+								"assignment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Assignment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/vehicles/assignment",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"vehicles",
+								"assignment"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shipment",
+			"item": [
+				{
+					"name": "Drivers",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/shipments/drivers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"shipments",
+								"drivers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Vehicles",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field\": \"24897533\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/shipments/vehicles",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"shipments",
+								"vehicles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Shipment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-authorization-token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6MSwiaWF0IjoxNjU4NDQxNzAyLCJleHAiOjE2NTg1MjgxMDJ9.q2TzCT_BNYWTCWMhhht9horar74KEbVSUWlCChV_Qcg",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"products\": [\r\n        {\r\n            \"productName\": \"Pepsi\",\r\n            \"productQuantity\": 10\r\n        }\r\n    ],\r\n    \"driverIdentificationCode\": \"26275576\",\r\n    \"vehicleLicenseNumber\": \"A2973B7\",\r\n    \"shipment\": {\r\n        \"address\": \"Mall Delicias, Maracaibo\",\r\n        \"origin\": {\r\n            \"latitude\": \"10.93110654706317\",\r\n            \"longitude\": \"-71.73188368670101\"\r\n        },\r\n        \"destination\": {\r\n            \"latitude\": \"10.952840363811298\",\r\n            \"longitude\": \"-71.72650603333574\"\r\n        }\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/shipments/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"shipments",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Shipment Last Coordinates",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"shipmentId\": 31\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/shipments/tracking/coordinates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"shipments",
+								"tracking",
+								"coordinates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assigned",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-authorization-token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiaWF0IjoxNjU4MjQ1MjYyLCJleHAiOjE2NTgzMzE2NjJ9.atogUQd0_v1s570uSUX-7_Hvyq0AZcftC4XTointQDg",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/shipments/assigned",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"shipments",
+								"assigned"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Active Shipments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-authorization-token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6MSwiaWF0IjoxNjU4NDI1NDc2LCJleHAiOjE2NTg1MTE4NzZ9._VDIpzPRzOBQ6Kbf_5gICMFJ4IRQi3Oq1as1FUdGPaw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:4000/api/v1/shipments/active",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"shipments",
+								"active"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Completed",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-authorization-token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjU4NTkwNzU1LCJleHAiOjE2NTg2NzcxNTV9.5ae3oZfLCJGV5q9L5vH6IjVN8Xg24eKMrF5NBZuOoxA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"shipmentId\": 32\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:4000/api/v1/shipments/completed",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"v1",
+								"shipments",
+								"completed"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
