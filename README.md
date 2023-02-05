@@ -19,8 +19,9 @@ This project is to handle the requests of the web and mobile app and connects to
 You must have:
 
 * Installed [node.js](https://nodejs.org/en/) and [yarn](https://classic.yarnpkg.com/en/) package manager on your machine
+* MySQL database manager such as [Workbeanch](https://www.mysql.com/products/workbench/) or [Xampp](https://www.apachefriends.org/download.html)
 * [Cloudinary Platform](https://cloudinary.com/) account
-* Some email account such as [Gmail](https://www.google.com/intl/es-419/gmail/about/), [Outlook](https://outlook.live.com/owa/), or another email service for the sending mails 
+* Some email account such as [Gmail](https://www.google.com/intl/es-419/gmail/about/), [Outlook](https://outlook.live.com/owa/), or another email service for the sending mails
 
 ## Clone project
 
