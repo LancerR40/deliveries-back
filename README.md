@@ -18,7 +18,7 @@ This project is to handle the requests of the web and mobile app and connects to
 ## Requirements
 You must have:
 
-* Installed [node.js](https://nodejs.org/en/) and [Yarn](https://classic.yarnpkg.com/en/) package manager on your machine
+* Installed [node.js](https://nodejs.org/en/) and [yarn](https://classic.yarnpkg.com/en/) package manager on your machine
 * [Cloudinary Platform](https://cloudinary.com/) account
 * Some email account such as [Gmail](https://www.google.com/intl/es-419/gmail/about/), [Outlook](https://outlook.live.com/owa/), or another email service for the sending mails 
 
