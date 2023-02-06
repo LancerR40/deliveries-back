@@ -1,5 +1,5 @@
 # deliveries-back
-API REST server to serve [**dashboard**](https://github.com/LancerR40/deliveries-dashboard) and [mobile](https://github.com/LancerR40/deliveries-app) apps requests corresponding to my [URBE University](https://www.urbe.edu/index.jsp) Thesis called **Software for the Online Management of Road Transport Cargoes**
+API REST server to serve [dashboard](https://github.com/LancerR40/deliveries-dashboard) and [mobile](https://github.com/LancerR40/deliveries-app) apps requests corresponding to my [URBE University](https://www.urbe.edu/index.jsp) Thesis called **Software for the Online Management of Road Transport Cargoes**
 
 * [Node.js](https://nodejs.org/en/)
 * [Express.js](https://expressjs.com/)
